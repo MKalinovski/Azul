@@ -1,0 +1,82 @@
+.game {
+  width: 1280px;
+  height: 800px;
+  background-color: rgba(30, 30, 230, 1);
+  border-radius: 16px;
+  display: flex;
+  justify-content: flex-start;
+  flex-wrap: wrap;
+  align-items: flex-start;
+}
+
+.top-panel {
+    width: 100%;
+    height: 60px;
+    background-color: rgba(245, 245, 245, 1);
+    border-top-right-radius: 16px;
+    border-top-left-radius: 16px;
+    box-shadow: 8px;
+}
+
+.board {
+  width: 1232px;
+  height: 692px;
+  display: flex;
+  margin-left: 24px;
+  justify-content: flex-start;
+}
+
+.left-side-board {
+  width: 608px;
+  height: 692px;
+  display: flex;
+  gap: 8px;
+  flex-direction: row;
+  flex-wrap: wrap;
+}
+
+.other-players-container {
+  width: 240px;
+  height: 444px;
+  display: flex;
+  gap: 6px;
+  justify-content: flex-start;
+  flex-direction: column;
+}
+
+.other-player-board {
+  width: 240px;
+  height: 148px;
+  border-radius: 8px;
+  background-color: rgba(245,245,245,1);
+}
+
+.middle-board {
+  width: 340px;
+  height: 444 px;
+  display: flex;
+  flex-direction: column;
+}
+
+.traders-board {
+  width: 692px;
+  height: 692px;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 24px;
+}
+
+.trader {
+  width: 160px;
+  height: 160px;
+  border-radius: 50%;
+  background-color: rgba(245, 245, 245, 1);
+}
+
+.player-board {
+  width: 480px;
+  height: 240px;
+  border-radius: 8px;
+  background-color: rgba(245, 245, 245, 1);
+}

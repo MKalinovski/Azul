@@ -5,13 +5,3 @@
   align-items: center;
   justify-content: center;
 }
-
-.Board {
-  width: 50vw;
-  height: 50vh;
-  border-radius: 50px;;
-  background-color: rgb(56, 82, 93);
-  display: flex;
-  justify-content: center;
-  align-items: center;
-}

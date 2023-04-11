@@ -1,5 +1,6 @@
 import { Tile } from "./Tile";
 import "./MainBoard.css";
+import { firstMainRow1, firstMainRow1Set } from "../data/FirstPlayer";
 
 const MainBoard = () => {
   return (
@@ -14,8 +15,7 @@ const MainBoard = () => {
       <div id="row">
         {Tile("white")}
         {Tile("blue")}
-        {Tile("yellow")}
-        {Tile("red")}
+        {Tile("yellow")}§{Tile("red")}
         {Tile("black")}
       </div>
       <div id="row">
