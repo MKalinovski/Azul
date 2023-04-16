@@ -1,6 +1,5 @@
 import { Tile } from "./Tile";
 import "./MainBoard.css";
-import { firstMainRow1, firstMainRow1Set } from "../data/FirstPlayer";
 
 const MainBoard = () => {
   return (

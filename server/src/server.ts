@@ -35,7 +35,7 @@ app.get('/PlayersTurn', (req, res) => {
 
 app.get('/StartGame', (req, res) => {
   gameStatus.readyPlayers += 1
-  if (gameStatus.readyPlayers = players.data.length) {
+  if (gameStatus.readyPlayers === players.data.length) {
     arrangeTiles()
     gameStatus.playerTurn = Math.floor(Math.random() * players.data.length);
     res.send('Starting Game')

@@ -1,7 +1,12 @@
 import { MouseEventHandler } from "react";
 import { useState } from "react";
+import { Color } from "./GameManager";
 
-export function Tile(color: string) {
+interface ITile {
+  color: Color;
+}
+
+export function Tile({ color }: ITile) {
   const [border, setBorder] = useState("0px");
 
   let greyedColor;
@@ -32,10 +37,6 @@ export function Tile(color: string) {
 
   const [tileColor, setTileColor] = useState(greyedColor);
 
-  function HandleClick() {
-    setTileColor(liveColor);
-  }
-
   return (
     <div
       style={{
@@ -45,7 +46,6 @@ export function Tile(color: string) {
         borderRadius: "8px",
         border: border,
       }}
-      onClick={HandleClick}
     ></div>
   );
 }

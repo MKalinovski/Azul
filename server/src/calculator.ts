@@ -902,8 +902,9 @@ export function checkForTiles() {
 export function nextRound() {
   arrangeTiles();
   for (let i = 0; i < players.data.length; i++) {
-    if (players.data[i -1].board.penalty.FPToken === true) {
-      gameStatus.playerTurn = i - 1;
+    if (players.data[i].board.penalty.FPToken === true) {
+      gameStatus.playerTurn = i;
+      players.data[i].board.penalty.FPToken = false
     }
   }
   board.middle.FPToken = true;
