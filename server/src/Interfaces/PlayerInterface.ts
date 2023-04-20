@@ -11,7 +11,6 @@ export interface Player {
       }[];
     }[];
     stacker: {
-      row: number;
       quantity: number;
       color: string;
     }[];

@@ -1,0 +1,204 @@
+.game-page {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  height: 100%;
+}
+
+.top-panel {
+  display: flex;
+  justify-content: center;
+  top: 0;
+}
+
+.turn-indicator {
+  height: 50px;
+  width: 240px;
+  border-bottom-left-radius: 8px;
+  border-bottom-right-radius: 8px;
+  background-color: rgb(200, 225, 237);
+  box-shadow: 0px 5px 10px 3px rgba(0,0,0, 0.25);
+  padding-left: 15px;
+}
+
+.turn-indicator p {
+  font-size: large;
+  color:rgb(24, 92, 123);
+}
+
+.opponents {
+  display: flex;
+  gap: 50px;
+  justify-content: flex-start;
+  padding: 25px;
+  padding-left: 70px;
+}
+
+.opponent {
+  display: flex;
+  flex-direction: column;
+  width: 400px;
+  height: 220px;
+  background-color:rgb(200, 225, 237);
+  border-radius: 8px;
+  box-shadow:0px 5px 10px 3px rgba(0,0,0, 0.25);
+}
+
+.opponent-info {
+  display: flex;
+  justify-content: space-between;
+  padding-left: 10px;
+  padding-right: 10px;
+  height: 40px;
+}
+
+.opponent-boards {
+  display: flex;
+  padding-left: 25px;
+  padding-right: 25px;
+}
+
+.opponent-stackerBoard {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  width: 137px;
+}
+
+.opponents-stacker-row {
+  display: flex;
+  flex-direction: row-reverse;
+  gap: 3px;
+  height: 25px;
+}
+
+.opponent-mainBoard {
+  margin-left: 10px;  
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.opponent-mainRow {
+  display: flex;
+  gap: 3px;
+}
+
+.opponent-penalty {
+  padding-top: 10px;
+  display: flex;  
+  padding-left: 25px;
+  gap: 3px;
+}
+
+.currentPlayer {
+  margin-top: 75px;
+  margin-left: 25px;
+  display: flex;
+  flex-direction: column;
+  width: 600px;
+  height: 450px;
+  background-color:rgb(200, 225, 237);
+  border-radius: 8px;
+  box-shadow:0px 5px 10px 3px rgba(0,0,0, 0.25);
+}
+
+.currentPlayer-info {
+  display: flex;
+  justify-content: space-between;
+  padding-left: 15px;
+  padding-right: 15px;
+  height: 40px;
+}
+
+.currentPlayer-boards {
+  margin-top: 25px;
+  display: flex;
+  padding-left: 10px;
+  padding-right: 50px;
+}
+
+.currentPlayer-stackerBoard {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  width: 270px;
+}
+
+.currentPlayer-stacker-row {
+  display: flex;
+  flex-direction: row-reverse;
+  gap: 3px;
+  height: 50px;
+}
+
+.currentPlayer-mainBoard {
+  margin-left: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.currentPlayer-mainRow {
+  display: flex;
+  flex-direction: row;
+  gap: 5px;
+}
+
+.currentPlayer-penalty {
+  display: flex;
+  margin-top: 15px;
+  padding-left: 50px;
+}
+
+.main-game {
+  display: flex;
+  gap: 50px;
+  justify-content: space-evenly;  
+}
+
+.traders-board {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 15px;
+  width: 525px;
+  height: 525px;
+}
+
+.trader {
+  display: flex;
+  background-color: rgb(200, 225, 237);
+  box-shadow: 0px 5px 10px 3px rgba(0,0,0, 0.25);
+  justify-content: center;
+  align-items: center;
+  width: 165px;
+  height: 165px;
+  border-radius: 50%;
+}
+
+.inside-of-trader {
+  display: flex;
+  flex-wrap: wrap;
+  width: 105px;
+  height: 105px;
+  gap: 5px;
+}
+
+.remaining-board {
+  display: inline-flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  height: min-content;
+  width: 350px;
+  gap: 5px;
+}
+
+.tile {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.tile p {
+  font-size: x-large;
+}

@@ -17,24 +17,29 @@ app.get('/PlayersTurn', (req, res) => {
     if (req.body.from === 'trader') {
         (0, calculator_1.takeTiles)(req.body.from, req.body.what, req.body.who, req.body.where, req.body.which);
     }
-    else if (req.body.from === 'middle') {
+    else if (req.body.from === 'remaining') {
         (0, calculator_1.takeTiles)(req.body.from, req.body.what, req.body.who, req.body.where);
     }
-    res.send('Taking tiles');
     // Check if there are any tiles left in the game
     (0, calculator_1.checkForTiles)();
     if (calculator_1.gameStatus.tilesLeft === false) {
         (0, calculator_1.roundEnd)();
         if (calculator_1.gameStatus.finished === true) {
             (0, calculator_1.finishGame)();
+            const clientUpdateStatus = (0, calculator_1.updateGameStatus)();
+            res.send(clientUpdateStatus);
         }
         else {
             (0, calculator_1.nextRound)();
+            const clientUpdateStatus = (0, calculator_1.updateGameStatus)();
+            res.send(clientUpdateStatus);
         }
     }
     else {
         // Start next turn
         (0, calculator_1.nextTurn)();
+        const clientUpdateStatus = (0, calculator_1.updateGameStatus)();
+        res.send(clientUpdateStatus);
     }
 });
 app.get('/StartGame', (req, res) => {
@@ -42,10 +47,14 @@ app.get('/StartGame', (req, res) => {
     if (calculator_1.gameStatus.readyPlayers === calculator_1.players.data.length) {
         (0, calculator_1.arrangeTiles)();
         calculator_1.gameStatus.playerTurn = Math.floor(Math.random() * calculator_1.players.data.length);
-        res.send('Starting Game');
+        calculator_1.gameStatus.gamePhase = "game-started";
+        const clientUpdateStatus = (0, calculator_1.updateGameStatus)();
+        res.send(clientUpdateStatus);
     }
     else {
-        res.send('Waiting for other players...');
+        calculator_1.gameStatus.gamePhase = "waiting-for-players";
+        const clientUpdateStatus = (0, calculator_1.updateGameStatus)();
+        res.send(clientUpdateStatus);
     }
 });
 app.get('/WhatsNew', (req, res) => {

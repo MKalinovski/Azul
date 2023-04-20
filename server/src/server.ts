@@ -1,5 +1,5 @@
 import express from 'express';
-import { players, tilesPool, board, gameStatus, eventHistory, createPlayer, calculatePoints, createTraders, getRandomTile, arrangeTiles, takeTiles, roundEnd, calculateBonusPoints, determineWinner, finishGame, nextTurn, checkForTiles, nextRound} from './calculator';
+import { players, tilesPool, board, gameStatus, eventHistory, createPlayer, calculatePoints, createTraders, getRandomTile, arrangeTiles, takeTiles, roundEnd, calculateBonusPoints, determineWinner, finishGame, nextTurn, checkForTiles, nextRound, updateGameStatus} from './calculator';
 
 const app = express();
 const port = 8000;
@@ -7,29 +7,36 @@ const port = 8000;
 app.get('/NewPlayer', (req, res) => {
   const playerName = req.body.name;
   createPlayer(playerName)
-  res.send('Created new player');
+  const clientUpdateStatus = updateGameStatus();
+  res.send(clientUpdateStatus);
 });
 
 app.get('/PlayersTurn', (req, res) => {
   // Take tiles from trader or from the middle
   if (req.body.from === 'trader') {
     takeTiles(req.body.from, req.body.what, req.body.who, req.body.where, req.body.which)
-  } else if ( req.body.from === 'middle') {
+  } else if ( req.body.from === 'remaining') {
     takeTiles(req.body.from, req.body.what, req.body.who, req.body.where)
   }
-  res.send('Taking tiles')
+  
   // Check if there are any tiles left in the game
   checkForTiles();
   if (gameStatus.tilesLeft === false) {
     roundEnd()
     if (gameStatus.finished === true) {
       finishGame();
+      const clientUpdateStatus = updateGameStatus();
+      res.send(clientUpdateStatus)
     } else {
       nextRound();
+      const clientUpdateStatus = updateGameStatus();
+      res.send(clientUpdateStatus)
     }
   } else {
     // Start next turn
     nextTurn();
+    const clientUpdateStatus = updateGameStatus();
+    res.send(clientUpdateStatus)
   }
 });
 
@@ -38,14 +45,19 @@ app.get('/StartGame', (req, res) => {
   if (gameStatus.readyPlayers === players.data.length) {
     arrangeTiles()
     gameStatus.playerTurn = Math.floor(Math.random() * players.data.length);
-    res.send('Starting Game')
+    gameStatus.gamePhase = "game-started"
+    const clientUpdateStatus = updateGameStatus();
+    res.send(clientUpdateStatus)
   } else {
-    res.send('Waiting for other players...')
+    gameStatus.gamePhase = "waiting-for-players"
+    const clientUpdateStatus = updateGameStatus();
+    res.send(clientUpdateStatus)
   }
 });
 
 app.get('/WhatsNew', (req, res) => {
-  res.send('Game Status')
+  const clientUpdateStatus = updateGameStatus();
+  res.send(clientUpdateStatus)
 })
 
 app.listen(port, () => {

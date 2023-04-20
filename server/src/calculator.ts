@@ -29,6 +29,7 @@ export const gameStatus = {
   finished: false,
   winner: 0,
   tilesLeft: true,
+  gamePhase: "game-started"
 };
 
 export const eventHistory = [];
@@ -93,27 +94,22 @@ export function createPlayer(name: string) {
       ],
       stacker: [
         {
-          row: 1,
           quantity: 0,
           color: "",
         },
         {
-          row: 2,
           quantity: 0,
           color: "",
         },
         {
-          row: 3,
           quantity: 0,
           color: "",
         },
         {
-          row: 4,
           quantity: 0,
           color: "",
         },
         {
-          row: 5,
           quantity: 0,
           color: "",
         },
@@ -568,7 +564,7 @@ export function takeTiles(
           }
           break;
       }
-    } else if (from === "middle") {
+    } else if (from === "remaining") {
       switch (what) {
         case "black":
           tilesTaken = board.middle.black;
@@ -910,3 +906,123 @@ export function nextRound() {
   board.middle.FPToken = true;
   gameStatus.round += 1
 }
+
+export function updateGameStatus() {
+  const interpretatePlayers = () => {
+    let interpretatedPlayers: any[] = [];
+    for (let i = 0; i < players.data.length - 1; i++) {
+      const penaltyBoardFPT = [];
+      if (players.data[i].board.penalty.FPToken) {
+        penaltyBoardFPT.push("FPT")
+      }
+      const penaltyBoardNoFPT = players.data[i].board.penalty.data
+      const penaltyBoard = penaltyBoardFPT.concat(penaltyBoardNoFPT);
+      const interpretatedPlayer = {
+        id: players.data[i].id,
+        name: players.data[i].name,
+        score: players.data[i].score,
+        board: {
+          mainRows: [{
+            blue: players.data[i].board.main[0].colors[0].isTrue,
+            yellow: players.data[i].board.main[0].colors[1].isTrue,
+            red: players.data[i].board.main[0].colors[2].isTrue,
+            black: players.data[i].board.main[0].colors[3].isTrue,
+            white: players.data[i].board.main[0].colors[4].isTrue,
+          },{
+            white: players.data[i].board.main[1].colors[0].isTrue,
+            blue: players.data[i].board.main[1].colors[1].isTrue,
+            yellow: players.data[i].board.main[1].colors[2].isTrue,
+            red: players.data[i].board.main[1].colors[3].isTrue,
+            black: players.data[i].board.main[1].colors[4].isTrue,
+          },{
+            black: players.data[i].board.main[2].colors[0].isTrue,
+            white: players.data[i].board.main[2].colors[1].isTrue,
+            blue: players.data[i].board.main[2].colors[2].isTrue,
+            yellow: players.data[i].board.main[2].colors[3].isTrue,
+            red: players.data[i].board.main[2].colors[4].isTrue,
+          },{
+            red: players.data[i].board.main[3].colors[0].isTrue,
+            black: players.data[i].board.main[3].colors[1].isTrue,
+            white: players.data[i].board.main[3].colors[2].isTrue,
+            blue: players.data[i].board.main[3].colors[3].isTrue,
+            yellow: players.data[i].board.main[3].colors[4].isTrue,
+          },{
+            yellow: players.data[i].board.main[4].colors[0].isTrue,
+            red: players.data[i].board.main[4].colors[1].isTrue,
+            black: players.data[i].board.main[4].colors[2].isTrue,
+            white: players.data[i].board.main[4].colors[3].isTrue,
+            blue: players.data[i].board.main[4].colors[4].isTrue,
+          }],
+          stackerRows: players.data[i].board.stacker,
+          penaltyBoard: penaltyBoard,
+        }
+      }
+      interpretatedPlayers.push(interpretatedPlayer)
+    }
+    return interpretatedPlayers;
+  }
+
+  function interpretateRemaining() {
+    const isFPT = () => {
+      if (board.middle.FPToken) {
+        return 1
+      } else {return 0}
+    }
+
+    const interpretatedRemaining = {
+      FPT: isFPT,
+      white: board.middle.white,
+      red: board.middle.red,
+      black: board.middle.black,
+      blue: board.middle.blue,
+      yellow: board.middle.yellow,
+    }
+
+    return interpretatedRemaining;
+  }
+
+  function interpretateTraders() {
+    const traders: any[] = [];
+    for (let i = 0; i < board.traders.length - 1; i++) {
+      const trader: any[] = [];
+      for (let k=1; k < board.traders[i].black; k++) {
+        trader.push("black")
+      };
+      for (let k=1; k < board.traders[i].red; k++) {
+        trader.push("red")
+      };
+      for (let k=1; k < board.traders[i].white; k++) {
+        trader.push("white")
+      };
+      for (let k=1; k < board.traders[i].blue; k++) {
+        trader.push("blue")
+      };
+      for (let k=1; k < board.traders[i].yellow; k++) {
+        trader.push("yellow")
+      };
+      traders.push(trader);
+    }
+    return traders;
+  }
+
+  const interpretatedPlayers = interpretatePlayers();
+
+  const interpretatedRemaining =
+  interpretateRemaining();
+
+  const interpretatedTraders = interpretateTraders();
+
+  return {
+      players: interpretatedPlayers,
+      board: {
+        remaining: interpretatedRemaining,
+        traders: interpretatedTraders,
+      },
+      turn: gameStatus.turn,
+      round: gameStatus.round,
+      playerTurn: gameStatus.playerTurn,
+      winner: gameStatus.winner,
+      readyPlayers: gameStatus.readyPlayers,
+      gamePhase: gameStatus.gamePhase,
+    }
+  }

@@ -1,15 +1,12 @@
 import React from "react";
 import logo from "./logo.svg";
 import "./App.css";
-import MainBoard from "./components/MainBoard";
-import StackerBoard from "./components/StackerBoard";
-import { Wrapper } from "./components/Wrapper";
-import { Game } from "./components/Game";
+import { GameManager, ShowGame } from "./components/GameManager";
 
 function App() {
   return (
     <div className="App">
-      <Wrapper></Wrapper>
+      <GameManager>{ShowGame()}</GameManager>
     </div>
   );
 }

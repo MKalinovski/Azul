@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.nextRound = exports.checkForTiles = exports.nextTurn = exports.finishGame = exports.determineWinner = exports.calculateBonusPoints = exports.roundEnd = exports.takeTiles = exports.arrangeTiles = exports.getRandomTile = exports.createTraders = exports.calculatePoints = exports.createPlayer = exports.eventHistory = exports.gameStatus = exports.board = exports.tilesPool = exports.players = void 0;
+exports.updateGameStatus = exports.nextRound = exports.checkForTiles = exports.nextTurn = exports.finishGame = exports.determineWinner = exports.calculateBonusPoints = exports.roundEnd = exports.takeTiles = exports.arrangeTiles = exports.getRandomTile = exports.createTraders = exports.calculatePoints = exports.createPlayer = exports.eventHistory = exports.gameStatus = exports.board = exports.tilesPool = exports.players = void 0;
 exports.players = {
     quantity: 0,
     data: [],
@@ -25,6 +25,7 @@ exports.gameStatus = {
     finished: false,
     winner: 0,
     tilesLeft: true,
+    gamePhase: "game-started"
 };
 exports.eventHistory = [];
 function createPlayer(name) {
@@ -87,27 +88,22 @@ function createPlayer(name) {
             ],
             stacker: [
                 {
-                    row: 1,
                     quantity: 0,
                     color: "",
                 },
                 {
-                    row: 2,
                     quantity: 0,
                     color: "",
                 },
                 {
-                    row: 3,
                     quantity: 0,
                     color: "",
                 },
                 {
-                    row: 4,
                     quantity: 0,
                     color: "",
                 },
                 {
-                    row: 5,
                     quantity: 0,
                     color: "",
                 },
@@ -510,7 +506,7 @@ function takeTiles(from, what, who, where, which) {
                     break;
             }
         }
-        else if (from === "middle") {
+        else if (from === "remaining") {
             switch (what) {
                 case "black":
                     tilesTaken = exports.board.middle.black;
@@ -806,11 +802,131 @@ exports.checkForTiles = checkForTiles;
 function nextRound() {
     arrangeTiles();
     for (let i = 0; i < exports.players.data.length; i++) {
-        if (exports.players.data[i - 1].board.penalty.FPToken === true) {
-            exports.gameStatus.playerTurn = i - 1;
+        if (exports.players.data[i].board.penalty.FPToken === true) {
+            exports.gameStatus.playerTurn = i;
+            exports.players.data[i].board.penalty.FPToken = false;
         }
     }
     exports.board.middle.FPToken = true;
     exports.gameStatus.round += 1;
 }
 exports.nextRound = nextRound;
+function updateGameStatus() {
+    const interpretatePlayers = () => {
+        let interpretatedPlayers = [];
+        for (let i = 0; i < exports.players.data.length - 1; i++) {
+            const penaltyBoardFPT = [];
+            if (exports.players.data[i].board.penalty.FPToken) {
+                penaltyBoardFPT.push("FPT");
+            }
+            const penaltyBoardNoFPT = exports.players.data[i].board.penalty.data;
+            const penaltyBoard = penaltyBoardFPT.concat(penaltyBoardNoFPT);
+            const interpretatedPlayer = {
+                id: exports.players.data[i].id,
+                name: exports.players.data[i].name,
+                score: exports.players.data[i].score,
+                board: {
+                    mainRows: [{
+                            blue: exports.players.data[i].board.main[0].colors[0].isTrue,
+                            yellow: exports.players.data[i].board.main[0].colors[1].isTrue,
+                            red: exports.players.data[i].board.main[0].colors[2].isTrue,
+                            black: exports.players.data[i].board.main[0].colors[3].isTrue,
+                            white: exports.players.data[i].board.main[0].colors[4].isTrue,
+                        }, {
+                            white: exports.players.data[i].board.main[1].colors[0].isTrue,
+                            blue: exports.players.data[i].board.main[1].colors[1].isTrue,
+                            yellow: exports.players.data[i].board.main[1].colors[2].isTrue,
+                            red: exports.players.data[i].board.main[1].colors[3].isTrue,
+                            black: exports.players.data[i].board.main[1].colors[4].isTrue,
+                        }, {
+                            black: exports.players.data[i].board.main[2].colors[0].isTrue,
+                            white: exports.players.data[i].board.main[2].colors[1].isTrue,
+                            blue: exports.players.data[i].board.main[2].colors[2].isTrue,
+                            yellow: exports.players.data[i].board.main[2].colors[3].isTrue,
+                            red: exports.players.data[i].board.main[2].colors[4].isTrue,
+                        }, {
+                            red: exports.players.data[i].board.main[3].colors[0].isTrue,
+                            black: exports.players.data[i].board.main[3].colors[1].isTrue,
+                            white: exports.players.data[i].board.main[3].colors[2].isTrue,
+                            blue: exports.players.data[i].board.main[3].colors[3].isTrue,
+                            yellow: exports.players.data[i].board.main[3].colors[4].isTrue,
+                        }, {
+                            yellow: exports.players.data[i].board.main[4].colors[0].isTrue,
+                            red: exports.players.data[i].board.main[4].colors[1].isTrue,
+                            black: exports.players.data[i].board.main[4].colors[2].isTrue,
+                            white: exports.players.data[i].board.main[4].colors[3].isTrue,
+                            blue: exports.players.data[i].board.main[4].colors[4].isTrue,
+                        }],
+                    stackerRows: exports.players.data[i].board.stacker,
+                    penaltyBoard: penaltyBoard,
+                }
+            };
+            interpretatedPlayers.push(interpretatedPlayer);
+        }
+        return interpretatedPlayers;
+    };
+    function interpretateRemaining() {
+        const isFPT = () => {
+            if (exports.board.middle.FPToken) {
+                return 1;
+            }
+            else {
+                return 0;
+            }
+        };
+        const interpretatedRemaining = {
+            FPT: isFPT,
+            white: exports.board.middle.white,
+            red: exports.board.middle.red,
+            black: exports.board.middle.black,
+            blue: exports.board.middle.blue,
+            yellow: exports.board.middle.yellow,
+        };
+        return interpretatedRemaining;
+    }
+    function interpretateTraders() {
+        const traders = [];
+        for (let i = 0; i < exports.board.traders.length - 1; i++) {
+            const trader = [];
+            for (let k = 1; k < exports.board.traders[i].black; k++) {
+                trader.push("black");
+            }
+            ;
+            for (let k = 1; k < exports.board.traders[i].red; k++) {
+                trader.push("red");
+            }
+            ;
+            for (let k = 1; k < exports.board.traders[i].white; k++) {
+                trader.push("white");
+            }
+            ;
+            for (let k = 1; k < exports.board.traders[i].blue; k++) {
+                trader.push("blue");
+            }
+            ;
+            for (let k = 1; k < exports.board.traders[i].yellow; k++) {
+                trader.push("yellow");
+            }
+            ;
+            traders.push(trader);
+        }
+        return traders;
+    }
+    const interpretatedPlayers = interpretatePlayers();
+    const interpretatedRemaining = interpretateRemaining();
+    const interpretatedTraders = interpretateTraders();
+    return {
+        players: interpretatedPlayers,
+        board: {
+            remaining: interpretatedRemaining,
+            traders: interpretatedTraders,
+        },
+        turn: exports.gameStatus.turn,
+        round: exports.gameStatus.round,
+        playerTurn: exports.gameStatus.playerTurn,
+        winner: exports.gameStatus.winner,
+        readyPlayers: exports.gameStatus.readyPlayers,
+        gamePhase: exports.gameStatus.gamePhase,
+    };
+}
+exports.updateGameStatus = updateGameStatus;
