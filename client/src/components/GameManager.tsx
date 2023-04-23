@@ -477,7 +477,8 @@ function PlayerStackerRow({ row, stackerIndex }: IPlayerStackerRow) {
   const which = Number(chosenTilePosition.replace(/^\D+/g, ""));
   const currentPlayerID = useCurrentPlayerID();
   const setGameState = useSetGameState();
-  const GameState = useGameState();
+  const host = useHost();
+  const playerTurnAddress = host + "/PlayersTurn";
   function handleClick() {
     let data;
     if (from === "trader") {
@@ -502,7 +503,7 @@ function PlayerStackerRow({ row, stackerIndex }: IPlayerStackerRow) {
       chosenTilePosition !== ""
     ) {
       console.log(data);
-      axios.post("http://localhost:8000/PlayersTurn", data).then((res) => {
+      axios.post(playerTurnAddress, data).then((res) => {
         const response = res.data as IPlayersTurnResponse;
         const updatedGameState = response.data;
         setGameState(updatedGameState);
