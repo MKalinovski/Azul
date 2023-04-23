@@ -59,6 +59,10 @@ app.post('/PlayersTurn', (req, res) => {
             res.json({ data: clientUpdateStatus });
         }
     }
+    else {
+        const clientUpdateStatus = (0, calculator_1.updateGameStatus)();
+        res.json({ data: clientUpdateStatus });
+    }
 });
 app.post('/StartGame', (req, res) => {
     calculator_1.gameStatus.readyPlayers += 1;

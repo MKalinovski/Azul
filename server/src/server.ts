@@ -71,6 +71,9 @@ app.post('/PlayersTurn', (req, res) => {
       console.log("UPDATED GAME STATUS:" + clientUpdateStatus)
       res.json({data: clientUpdateStatus})
     }
+  } else {
+    const clientUpdateStatus = updateGameStatus();
+    res.json({data: clientUpdateStatus})
   }
 });
 

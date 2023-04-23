@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.updateGameStatus = exports.nextRound = exports.checkForTiles = exports.nextTurn = exports.finishGame = exports.determineWinner = exports.calculateBonusPoints = exports.roundEnd = exports.IsMoveLegal = exports.takeTiles = exports.startGame = exports.arrangeTiles = exports.getRandomTile = exports.createTraders = exports.calculatePoints = exports.addPoint = exports.createPlayer = exports.eventHistory = exports.gameStatus = exports.board = exports.tilesPool = exports.players = void 0;
+exports.updateGameStatus = exports.nextRound = exports.checkForTiles = exports.nextTurn = exports.finishGame = exports.determineWinner = exports.calculateBonusPoints = exports.roundEnd = exports.IsMoveLegal = exports.takeTiles = exports.startGame = exports.arrangeTiles = exports.getRandomTile = exports.createTraders = exports.calculatePoints = exports.giveBackTiles = exports.addPoint = exports.createPlayer = exports.eventHistory = exports.gameStatus = exports.board = exports.tilesPool = exports.players = void 0;
 exports.players = {
     quantity: 0,
     data: [],
@@ -124,6 +124,30 @@ function addPoint(player) {
     exports.players.data[player].score += 1;
 }
 exports.addPoint = addPoint;
+function giveBackTiles(player) {
+    exports.players.data[player].board.penalty.data.map((color) => {
+        switch (color) {
+            case "red":
+                exports.tilesPool.red += 1;
+                break;
+            case "blue":
+                exports.tilesPool.blue += 1;
+                break;
+            case "white":
+                exports.tilesPool.white += 1;
+                break;
+            case "yellow":
+                exports.tilesPool.yellow += 1;
+                break;
+            case "black":
+                exports.tilesPool.black += 1;
+                break;
+            default:
+                break;
+        }
+    });
+}
+exports.giveBackTiles = giveBackTiles;
 function calculatePoints(player) {
     for (let i = 0; i < 5; i++) {
         if (exports.players.data[player].board.stacker[i].quantity === i + 1) {
@@ -132,8 +156,6 @@ function calculatePoints(player) {
             exports.players.data[player].board.main[i].colors[ID].isTrue = true;
             addPoint(player);
             let checker = ID + 1;
-            console.log("function calculator for player" + player + "ID: " + ID);
-            console.log("function calculator for player" + player + "checker right: " + checker);
             for (let l = ID + 1; l < 5; l++) {
                 if ((exports.players.data[player].board.main[i].colors[checker].isTrue === true) &&
                     (l === checker)) {
@@ -142,7 +164,6 @@ function calculatePoints(player) {
                 }
             }
             checker = ID - 1;
-            console.log("function calculator for player" + player + "checker left: " + checker);
             for (let l = ID - 1; l > -1; l--) {
                 if (exports.players.data[player].board.main[i].colors[checker].isTrue === true &&
                     l === checker) {
@@ -168,20 +189,21 @@ function calculatePoints(player) {
                     checker -= 1;
                 }
             }
+            exports.tilesPool[exports.players.data[player].board.stacker[i].color] += exports.players.data[player].board.stacker[i].quantity;
             exports.players.data[player].board.stacker[i].quantity = 0;
             exports.players.data[player].board.stacker[i].color = "";
             for (let i = 0; i < exports.players.data[player].board.penalty.data.length; i++) {
-                if (i < 3) {
+                if (i < 2) {
                     exports.players.data[player].score -= 1;
                 }
-                else if (i >= 3 && i < 6) {
+                else if (i >= 2 && i < 5) {
                     exports.players.data[player].score -= 2;
                 }
-                else if (i >= 6) {
+                else if (i >= 5) {
                     exports.players.data[player].score -= 3;
                 }
             }
-            exports.players.data[player].score -= exports.players.data[player].board.penalty.data.length;
+            giveBackTiles(player);
             exports.players.data[player].board.penalty.data = [];
         }
     }
@@ -196,7 +218,8 @@ exports.createTraders = createTraders;
 function getRandomTile() {
     const totalTiles = Object.values(exports.tilesPool).reduce((sum, count) => sum + count, 0);
     if (totalTiles === 0) {
-        throw new Error("No tiles left in the pool.");
+        console.log("no tiles left");
+        return;
     }
     let randomIndex = Math.floor(Math.random() * totalTiles);
     for (const [color, count] of Object.entries(exports.tilesPool)) {
@@ -242,7 +265,6 @@ function startGame() {
 }
 exports.startGame = startGame;
 function takeTiles(from, what, who, where, which) {
-    console.log("using function takeTiles");
     let tilesTaken;
     let redTilesLeft;
     let blueTilesLeft;
@@ -254,7 +276,6 @@ function takeTiles(from, what, who, where, which) {
         typeof where !== "undefined") {
         if (from === "trader") {
             if (typeof which !== "undefined") {
-                console.log("taking tiles from trader");
                 switch (what) {
                     case "black":
                         tilesTaken = exports.board.traders[which].black;
@@ -419,7 +440,7 @@ function takeTiles(from, what, who, where, which) {
                     if (exports.board.middle.FPToken === true) {
                         exports.board.middle.FPToken = false;
                         exports.players.data[who].board.penalty.FPToken = true;
-                        exports.players.data[who].board.penalty.data.push("FPToken");
+                        exports.players.data[who].board.penalty.data.push("FPT");
                     }
                     if (exports.players.data[who].board.stacker[where].quantity > where + 1) {
                         penaltyTiles =
@@ -438,7 +459,7 @@ function takeTiles(from, what, who, where, which) {
                     if (exports.board.middle.FPToken === true) {
                         exports.board.middle.FPToken = false;
                         exports.players.data[who].board.penalty.FPToken = true;
-                        exports.players.data[who].board.penalty.data.push("FPToken");
+                        exports.players.data[who].board.penalty.data.push("FPT");
                     }
                     if (exports.players.data[who].board.stacker[where].quantity > where + 1) {
                         penaltyTiles =
@@ -457,7 +478,7 @@ function takeTiles(from, what, who, where, which) {
                     if (exports.board.middle.FPToken === true) {
                         exports.board.middle.FPToken = false;
                         exports.players.data[who].board.penalty.FPToken = true;
-                        exports.players.data[who].board.penalty.data.push("FPToken");
+                        exports.players.data[who].board.penalty.data.push("FPT");
                     }
                     if (exports.players.data[who].board.stacker[where].quantity > where + 1) {
                         penaltyTiles =
@@ -476,7 +497,7 @@ function takeTiles(from, what, who, where, which) {
                     if (exports.board.middle.FPToken === true) {
                         exports.board.middle.FPToken = false;
                         exports.players.data[who].board.penalty.FPToken = true;
-                        exports.players.data[who].board.penalty.data.push("FPToken");
+                        exports.players.data[who].board.penalty.data.push("FPT");
                     }
                     if (exports.players.data[who].board.stacker[where].quantity > where + 1) {
                         penaltyTiles =
@@ -493,8 +514,15 @@ function takeTiles(from, what, who, where, which) {
 }
 exports.takeTiles = takeTiles;
 function IsMoveLegal(what, who, where) {
-    if (exports.players.data[who].board.stacker[where].color === what || exports.players.data[who].board.stacker[where].color === "") {
-        return true;
+    const colorTile = exports.players.data[who].board.main[where].colors.find((color) => color.color === what);
+    const ID = Number(colorTile === null || colorTile === void 0 ? void 0 : colorTile.id);
+    if ((exports.players.data[who].board.stacker[where].color === what || exports.players.data[who].board.stacker[where].color === "")) {
+        if (!exports.players.data[who].board.main[where].colors[ID].isTrue) {
+            return true;
+        }
+        else {
+            return false;
+        }
     }
     else {
         return false;

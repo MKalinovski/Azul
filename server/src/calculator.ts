@@ -139,16 +139,38 @@ interface ColorTile {
   id: number;
 }
 
+export function giveBackTiles(player: number) {
+  players.data[player].board.penalty.data.map((color) => {
+    switch (color) {
+      case "red":
+        tilesPool.red += 1
+        break;
+      case "blue":
+        tilesPool.blue += 1
+        break;
+      case "white":
+        tilesPool.white += 1
+        break;
+      case "yellow":
+        tilesPool.yellow += 1
+        break;
+      case "black":
+        tilesPool.black += 1
+        break;
+      default:
+        break;
+    }
+  }) 
+}
+
 export function calculatePoints(player: number) {
   for (let i = 0; i < 5; i++) {
     if (players.data[player].board.stacker[i].quantity === i + 1) {
-      const colorTile = players.data[player].board.main[i].colors.find((color) => color.color === players.data[player].board.stacker[i].color)
+      const colorTile = players.data[player].board.main[i].colors.find((color) => color.color === players.data[player].board.stacker[i].color);
       const ID = Number(colorTile?.id)
       players.data[player].board.main[i].colors[ID].isTrue = true;
       addPoint(player);
       let checker = ID + 1;
-      console.log("function calculator for player" + player + "ID: " + ID);
-      console.log("function calculator for player" + player + "checker right: " + checker)
       for (let l = ID + 1; l < 5; l++) {
         if (
           (players.data[player].board.main[i].colors[checker].isTrue === true) &&
@@ -159,7 +181,6 @@ export function calculatePoints(player: number) {
         }
       }
       checker = ID - 1;
-      console.log("function calculator for player" + player + "checker left: " + checker)
       for (let l = ID - 1; l > -1; l--) {
         if (
           players.data[player].board.main[i].colors[checker].isTrue === true &&
@@ -191,18 +212,19 @@ export function calculatePoints(player: number) {
           checker -= 1;
         }
       }
+      tilesPool[players.data[player].board.stacker[i].color] += players.data[player].board.stacker[i].quantity; 
       players.data[player].board.stacker[i].quantity = 0;
       players.data[player].board.stacker[i].color = "";
       for (let i = 0; i < players.data[player].board.penalty.data.length; i++) {
-          if (i < 3) {
+          if (i < 2) {
             players.data[player].score -= 1
-          } else if (i >= 3 && i < 6) {
+          } else if (i >= 2 && i < 5) {
             players.data[player].score -= 2
-          } else if (i >= 6) {
+          } else if (i >= 5) {
             players.data[player].score -= 3
           }
         }
-      players.data[player].score -= players.data[player].board.penalty.data.length;
+      giveBackTiles(player);
       players.data[player].board.penalty.data = [];
     }
   }
@@ -221,7 +243,8 @@ export function getRandomTile() {
   );
 
   if (totalTiles === 0) {
-    throw new Error("No tiles left in the pool.");
+    console.log("no tiles left")
+    return;
   }
 
   let randomIndex = Math.floor(Math.random() * totalTiles);
@@ -275,7 +298,6 @@ export function takeTiles(
   where: number,
   which?: number
 ) {
-  console.log("using function takeTiles");
   let tilesTaken;
   let redTilesLeft;
   let blueTilesLeft;
@@ -289,7 +311,6 @@ export function takeTiles(
   ) {
     if (from === "trader") {
       if (typeof which !== "undefined") {
-      console.log("taking tiles from trader")
       switch (what) {
         case "black":
           tilesTaken = board.traders[which].black;
@@ -452,7 +473,7 @@ export function takeTiles(
           if (board.middle.FPToken === true) {
             board.middle.FPToken = false;
             players.data[who].board.penalty.FPToken = true;
-            players.data[who].board.penalty.data.push("FPToken");
+            players.data[who].board.penalty.data.push("FPT");
           }
           if (players.data[who].board.stacker[where].quantity > where + 1) {
             penaltyTiles =
@@ -471,7 +492,7 @@ export function takeTiles(
           if (board.middle.FPToken === true) {
             board.middle.FPToken = false;
             players.data[who].board.penalty.FPToken = true;
-            players.data[who].board.penalty.data.push("FPToken");
+            players.data[who].board.penalty.data.push("FPT");
           }
           if (players.data[who].board.stacker[where].quantity > where + 1) {
             penaltyTiles =
@@ -490,7 +511,7 @@ export function takeTiles(
           if (board.middle.FPToken === true) {
             board.middle.FPToken = false;
             players.data[who].board.penalty.FPToken = true;
-            players.data[who].board.penalty.data.push("FPToken");
+            players.data[who].board.penalty.data.push("FPT");
           }
           if (players.data[who].board.stacker[where].quantity > where + 1) {
             penaltyTiles =
@@ -509,7 +530,7 @@ export function takeTiles(
           if (board.middle.FPToken === true) {
             board.middle.FPToken = false;
             players.data[who].board.penalty.FPToken = true;
-            players.data[who].board.penalty.data.push("FPToken");
+            players.data[who].board.penalty.data.push("FPT");
           }
           if (players.data[who].board.stacker[where].quantity > where + 1) {
             penaltyTiles =
@@ -742,8 +763,8 @@ export function finishGame() {
     let player = i - 1;
     calculateBonusPoints(player);
   }
-
   gameStatus.winner = determineWinner();
+  gameStatus.gamePhase = "game-finished"
   // check who has highest score and determine the winner
 }
 

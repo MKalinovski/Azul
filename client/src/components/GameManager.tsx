@@ -1,4 +1,4 @@
-import React, { PropsWithChildren, useEffect } from "react";
+import React, { PropsWithChildren } from "react";
 import TextField from "@mui/material/TextField";
 import Button from "@mui/material/Button";
 import { TileProperties, findColor } from "../styles/TileStyle";
@@ -505,9 +505,7 @@ function PlayerStackerRow({ row, stackerIndex }: IPlayerStackerRow) {
       axios.post("http://localhost:8000/PlayersTurn", data).then((res) => {
         const response = res.data as IPlayersTurnResponse;
         const updatedGameState = response.data;
-        console.log("UPDATED GAME STATUS: " + updatedGameState);
         setGameState(updatedGameState);
-        console.log("GAMESTATE AFTER UPDATE:" + GameState);
       });
     }
   }
@@ -764,24 +762,29 @@ function ConnectPage({ setPage }: PageProps, page: PageType) {
 }
 
 function WaitingForStart({ setPage }: PageProps) {
+  const [ready, setReady] = React.useState(false);
   const players = usePlayers();
   const readyPlayers = useReadyPlayers();
   const serverHost = useHost();
   const setGameState = useSetGameState();
-  const UpdateGameAddress = serverHost + "/UpdateGame";
   const StartTheGameAddress = serverHost + "/StartGame";
   const gamePhase = useGamePhase();
 
   function readyThePlayer() {
-    axios.post(StartTheGameAddress).then((res) => {
-      const response = res.data as IConnectPageResponse;
-      if (response.success) {
-        setGameState(response.data);
-        setPage("game-started");
-      } else {
-        setGameState(response.data);
-      }
-    });
+    if (!ready) {
+      setReady(true);
+      axios.post(StartTheGameAddress).then((res) => {
+        const response = res.data as IConnectPageResponse;
+        if (response.success) {
+          setGameState(response.data);
+          setPage("game-started");
+        } else {
+          setGameState(response.data);
+        }
+      });
+    } else {
+      return;
+    }
   }
 
   if (gamePhase === "game-started") {
