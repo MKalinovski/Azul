@@ -1,8 +1,32 @@
+@font-face {
+  font-family: "Eastwood";
+  src: url("../data/Eastwood.otf");
+}
+
 .game-page {
   display: flex;
   flex-direction: column;
-  width: 100%;
-  height: 100%;
+  width: 100vw;
+  height: 100vh;
+}
+
+.menu-page {
+  width: 400px;
+  height: 600px;
+  background-color: rgb(200, 225, 237);
+  border-radius: 16px;
+  box-shadow: 0px 5px 10px 3px rgba(0,0,0, 0.25);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.connect-page {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 24px;
+  flex-direction: column;
 }
 
 .top-panel {
@@ -18,34 +42,39 @@
   border-bottom-right-radius: 8px;
   background-color: rgb(200, 225, 237);
   box-shadow: 0px 5px 10px 3px rgba(0,0,0, 0.25);
-  padding-left: 15px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
 
 .turn-indicator p {
+  font-family: 'Eastwood';
   font-size: large;
   color:rgb(24, 92, 123);
 }
 
 .opponents {
   display: flex;
-  gap: 50px;
-  justify-content: flex-start;
+  justify-content: space-evenly;
   padding: 25px;
-  padding-left: 70px;
 }
 
 .opponent {
   display: flex;
   flex-direction: column;
-  width: 400px;
-  height: 220px;
+  width: 438px;
+  height: 265.5px;
   background-color:rgb(200, 225, 237);
   border-radius: 8px;
   box-shadow:0px 5px 10px 3px rgba(0,0,0, 0.25);
+  background-image: url("../data/AzulBoard.png");
+  background-size: 100%;
+  border: 5px solid #277BA4;
 }
 
 .opponent-info {
-  display: flex;
+  font-family: "Eastwood";
+  position: absolute;
   justify-content: space-between;
   padding-left: 10px;
   padding-right: 10px;
@@ -54,57 +83,59 @@
 
 .opponent-boards {
   display: flex;
-  padding-left: 25px;
-  padding-right: 25px;
+  padding: 3px;
+  gap: 15px;
 }
 
 .opponent-stackerBoard {
   display: flex;
   flex-direction: column;
-  gap: 3px;
-  width: 137px;
+  gap: 4.5px;
 }
 
 .opponents-stacker-row {
   display: flex;
   flex-direction: row-reverse;
   gap: 3px;
-  height: 25px;
+  height: 37.5px;
+  width: 203px;
 }
 
 .opponent-mainBoard {
   margin-left: 10px;  
   display: flex;
   flex-direction: column;
-  gap: 3px;
+  gap: 4.5px;
 }
 
 .opponent-mainRow {
   display: flex;
-  gap: 3px;
+  gap: 4px;
 }
 
 .opponent-penalty {
-  padding-top: 10px;
+  padding-top: 15px;
   display: flex;  
-  padding-left: 25px;
-  gap: 3px;
+  padding-left: 5px;
+  gap: 4px;
 }
 
 .currentPlayer {
-  margin-top: 75px;
+  margin-top: 175px;
   margin-left: 25px;
   display: flex;
   flex-direction: column;
-  width: 600px;
-  height: 450px;
-  background-color:rgb(200, 225, 237);
-  border-radius: 8px;
+  width: 584px;
+  height: 354px;
+  border-radius: 12px;
   box-shadow:0px 5px 10px 3px rgba(0,0,0, 0.25);
+  background-image: url("../data/AzulBoard.png");
+  background-size: 100%;
+  border: 5px solid #277BA4;
 }
 
 .currentPlayer-info {
-  display: flex;
+  position: absolute;
   justify-content: space-between;
   padding-left: 15px;
   padding-right: 15px;
@@ -112,28 +143,28 @@
 }
 
 .currentPlayer-boards {
-  margin-top: 25px;
+  margin-top: 5px;
   display: flex;
   padding-left: 10px;
-  padding-right: 50px;
+  gap: 34px;
 }
 
 .currentPlayer-stackerBoard {
   display: flex;
   flex-direction: column;
-  gap: 5px;
+  gap: 6px;
   width: 270px;
 }
 
 .currentPlayer-stacker-row {
   display: flex;
   flex-direction: row-reverse;
-  gap: 3px;
+  gap: 5px;
   height: 50px;
 }
 
 .currentPlayer-mainBoard {
-  margin-left: 10px;
+  margin-right: 5px;
   display: flex;
   flex-direction: column;
   gap: 5px;
@@ -147,17 +178,20 @@
 
 .currentPlayer-penalty {
   display: flex;
-  margin-top: 15px;
-  padding-left: 50px;
+  margin-top: 23px;
+  gap: 6px;
+  padding-left: 6px;
 }
 
 .main-game {
+  font-family:"Eastwood";
   display: flex;
-  gap: 50px;
+  gap: 25px;
   justify-content: space-evenly;  
 }
 
 .traders-board {
+  margin-top: 25px;
   display: flex;
   flex-wrap: wrap;
   gap: 15px;
@@ -185,6 +219,7 @@
 }
 
 .remaining-board {
+  margin-top: 75px;
   display: inline-flex;
   flex-wrap: wrap;
   align-items: flex-start;
@@ -200,5 +235,14 @@
 }
 
 .tile p {
+  font-family: "Eastwood";
   font-size: x-large;
+}
+
+.logo {
+  background-image: url("../data/AzulLogo.png");
+  background-size: 100%;
+  background-repeat: no-repeat;
+  width: 100%;
+  height: 100px;
 }

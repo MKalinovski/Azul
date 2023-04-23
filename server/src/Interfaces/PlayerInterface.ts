@@ -8,6 +8,7 @@ export interface Player {
       colors: {
         color: string;
         isTrue: boolean;
+        id: number;
       }[];
     }[];
     stacker: {

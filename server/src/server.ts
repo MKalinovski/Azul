@@ -1,63 +1,95 @@
 import express from 'express';
-import { players, tilesPool, board, gameStatus, eventHistory, createPlayer, calculatePoints, createTraders, getRandomTile, arrangeTiles, takeTiles, roundEnd, calculateBonusPoints, determineWinner, finishGame, nextTurn, checkForTiles, nextRound, updateGameStatus} from './calculator';
+import cors from 'cors';
+import { players, tilesPool, board, gameStatus, eventHistory, createPlayer, calculatePoints, createTraders, getRandomTile, arrangeTiles, takeTiles, roundEnd, calculateBonusPoints, determineWinner, finishGame, nextTurn, checkForTiles, nextRound, updateGameStatus, startGame, IsMoveLegal} from './calculator';
+import { Color } from './Interfaces/BoardInterface';
+import bodyParser from "body-parser";
 
 const app = express();
+
+const corsOpts = {
+  origin: "*",
+  methods: ["GET", "POST"],
+  allowedHeaders: ["Content-Type"],
+};
+
+app.use(express.json());
+app.use(cors(corsOpts));
+app.use(bodyParser.json());
+
 const port = 8000;
 
-app.get('/NewPlayer', (req, res) => {
-  const playerName = req.body.name;
-  createPlayer(playerName)
+interface IReqNewPlayer {
+  name: string;
+}
+
+app.post('/NewPlayer', (req, res) => {
+  const request = req.body as IReqNewPlayer
+  const playerName = request.name;
+  createPlayer(playerName);
   const clientUpdateStatus = updateGameStatus();
-  res.send(clientUpdateStatus);
-});
-
-app.get('/PlayersTurn', (req, res) => {
-  // Take tiles from trader or from the middle
-  if (req.body.from === 'trader') {
-    takeTiles(req.body.from, req.body.what, req.body.who, req.body.where, req.body.which)
-  } else if ( req.body.from === 'remaining') {
-    takeTiles(req.body.from, req.body.what, req.body.who, req.body.where)
+  const data = clientUpdateStatus
+  res.json({success: true, data: data});
   }
-  
-  // Check if there are any tiles left in the game
-  checkForTiles();
-  if (gameStatus.tilesLeft === false) {
-    roundEnd()
-    if (gameStatus.finished === true) {
-      finishGame();
-      const clientUpdateStatus = updateGameStatus();
-      res.send(clientUpdateStatus)
-    } else {
-      nextRound();
-      const clientUpdateStatus = updateGameStatus();
-      res.send(clientUpdateStatus)
+);
+
+interface IReqPlayersTurn {
+  from: string,
+  what: Color,
+  who: number,
+  where: number,
+  which?: number,
+}
+
+app.post('/PlayersTurn', (req, res) => {
+  const request = req.body as IReqPlayersTurn
+  // Take tiles from trader or from the remaining
+  if (IsMoveLegal(request.what, request.who, request.where)) {
+    if (request.from === 'trader') {
+      takeTiles(request.from, request.what, request.who, request.where, request.which)
+    } else if ( request.from === 'remaining') {
+      takeTiles(request.from, request.what, request.who, request.where)
     }
-  } else {
-    // Start next turn
-    nextTurn();
-    const clientUpdateStatus = updateGameStatus();
-    res.send(clientUpdateStatus)
+    
+    // Check if there are any tiles left in the game
+    checkForTiles();
+    if (gameStatus.tilesLeft === false) {
+      roundEnd()
+      if (gameStatus.finished === true) {
+        finishGame();
+        const clientUpdateStatus = updateGameStatus();
+        res.json({data: clientUpdateStatus})
+      } else {
+        console.log("got to nextRound");
+        nextRound();
+        const clientUpdateStatus = updateGameStatus();
+        res.json({data: clientUpdateStatus})
+      }
+    } else {
+      // Start next turn
+      nextTurn();
+      const clientUpdateStatus = updateGameStatus();
+      console.log("UPDATED GAME STATUS:" + clientUpdateStatus)
+      res.json({data: clientUpdateStatus})
+    }
   }
 });
 
-app.get('/StartGame', (req, res) => {
+app.post('/StartGame', (req, res) => {
   gameStatus.readyPlayers += 1
   if (gameStatus.readyPlayers === players.data.length) {
-    arrangeTiles()
-    gameStatus.playerTurn = Math.floor(Math.random() * players.data.length);
-    gameStatus.gamePhase = "game-started"
+    startGame();
     const clientUpdateStatus = updateGameStatus();
-    res.send(clientUpdateStatus)
+    res.json({success: true, data: clientUpdateStatus})
   } else {
     gameStatus.gamePhase = "waiting-for-players"
     const clientUpdateStatus = updateGameStatus();
-    res.send(clientUpdateStatus)
+    res.send({success: false, data: clientUpdateStatus})
   }
 });
 
-app.get('/WhatsNew', (req, res) => {
+app.post('/UpdateGame', (req, res) => {
   const clientUpdateStatus = updateGameStatus();
-  res.send(clientUpdateStatus)
+  res.send({success: true, data: clientUpdateStatus})
 })
 
 app.listen(port, () => {

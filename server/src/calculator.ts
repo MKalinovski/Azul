@@ -2,6 +2,7 @@ import { MouseEvent } from "react";
 import { Player, PlayerArray } from "./Interfaces/PlayerInterface";
 import { Board, Color } from "./Interfaces/BoardInterface";
 
+
 export const players: PlayerArray = {
   quantity: 0,
   data: [],
@@ -29,66 +30,66 @@ export const gameStatus = {
   finished: false,
   winner: 0,
   tilesLeft: true,
-  gamePhase: "game-started"
+  gamePhase: "waiting-for-players"
 };
 
 export const eventHistory = [];
 
 export function createPlayer(name: string) {
   let newPlayer: Player = {
-    id: players.quantity + 1,
+    id: players.data.length,
     name: name,
     score: 0,
     board: {
       main: [
         {
+          row: 0,
+          colors: [
+            { color: "blue", isTrue: false, id: 0 },
+            { color: "yellow", isTrue: false, id: 1 },
+            { color: "red", isTrue: false, id: 2 },
+            { color: "black", isTrue: false, id: 3 },
+            { color: "white", isTrue: false, id: 4 },
+          ],
+        },
+        {
           row: 1,
           colors: [
-            { color: "blue", isTrue: false },
-            { color: "yellow", isTrue: false },
-            { color: "red", isTrue: false },
-            { color: "black", isTrue: false },
-            { color: "white", isTrue: false },
+            { color: "white", isTrue: false, id: 0 },
+            { color: "blue", isTrue: false, id: 1 },
+            { color: "yellow", isTrue: false, id: 2 },
+            { color: "red", isTrue: false, id: 3 },
+            { color: "black", isTrue: false, id: 4 },
           ],
         },
         {
           row: 2,
           colors: [
-            { color: "white", isTrue: false },
-            { color: "blue", isTrue: false },
-            { color: "yellow", isTrue: false },
-            { color: "red", isTrue: false },
-            { color: "black", isTrue: false },
+            { color: "black", isTrue: false, id: 0 },
+            { color: "white", isTrue: false, id: 1},
+            { color: "blue", isTrue: false, id: 2 },
+            { color: "yellow", isTrue: false, id: 3 },
+            { color: "red", isTrue: false, id: 4 },
           ],
         },
         {
           row: 3,
           colors: [
-            { color: "black", isTrue: false },
-            { color: "white", isTrue: false },
-            { color: "blue", isTrue: false },
-            { color: "yellow", isTrue: false },
-            { color: "red", isTrue: false },
+            { color: "red", isTrue: false, id: 0 },
+            { color: "black", isTrue: false, id: 1 },
+            { color: "white", isTrue: false, id: 2 },
+            { color: "blue", isTrue: false, id: 3 },
+            { color: "yellow", isTrue: false, id: 4 },
           ],
         },
         {
           row: 4,
           colors: [
-            { color: "red", isTrue: false },
-            { color: "black", isTrue: false },
-            { color: "white", isTrue: false },
-            { color: "blue", isTrue: false },
-            { color: "yellow", isTrue: false },
-          ],
-        },
-        {
-          row: 5,
-          colors: [
-            { color: "yellow", isTrue: false },
-            { color: "red", isTrue: false },
-            { color: "black", isTrue: false },
-            { color: "white", isTrue: false },
-            { color: "blue", isTrue: false },
+            { color: "yellow", isTrue: false, id: 0 },
+            { color: "red", isTrue: false, id: 1 },
+            { color: "black", isTrue: false, id: 2 },
+            { color: "white", isTrue: false, id: 3 },
+            { color: "blue", isTrue: false, id: 4 },
           ],
         },
       ],
@@ -123,265 +124,92 @@ export function createPlayer(name: string) {
   if (players.quantity < 4) {
     players.data.push(newPlayer);
     players.quantity += 1;
-  } else {
-    console.log("Reached maximum number of Players");
   }
 }
 
+export function addPoint(player: number) {
+  players.data[player].score += 1;
+}
+
+
+
+interface ColorTile {
+  color: string;
+  isTrue: boolean;
+  id: number;
+}
+
 export function calculatePoints(player: number) {
-  let mainBoard = players.data[player].board.main;
-  let stackerBoard = players.data[player].board.stacker;
-  function addPoint() {
-    players.data[player].score = +1;
-  }
-  for (let i = 0; i < 4; i++) {
-    if (stackerBoard[i].quantity === i + 1) {
-      if (stackerBoard[i].color === "red") {
-        for (let k = 0; k < 5; k++) {
-          if (mainBoard[i].colors[k].color === "red") {
-            players.data[player].board.main[i].colors[k].isTrue = true;
-            addPoint();
-            let checker = k;
-            for (let l = k; l < k + 4; l++) {
-              if (
-                mainBoard[i].colors[checker + 1].isTrue === true &&
-                l === checker
-              ) {
-                addPoint();
-                checker += 1;
-              }
-            }
-            checker = k;
-            for (let l = k; l > k - 4; l--) {
-              if (
-                mainBoard[i].colors[checker - 1].isTrue === true &&
-                l === checker
-              ) {
-                addPoint();
-                checker -= 1;
-              }
-            }
-            checker = k;
-            for (let l = i; l < i + 4; l++) {
-              if (
-                mainBoard[checker + 1].colors[k].isTrue === true &&
-                l === checker
-              ) {
-                addPoint();
-                checker += 1;
-              }
-            }
-            checker = k;
-            for (let l = i; l > i - 4; l--) {
-              if (
-                mainBoard[checker - 1].colors[k].isTrue === true &&
-                l === checker
-              ) {
-                addPoint();
-                checker -= 1;
-              }
-            }
-          }
+  for (let i = 0; i < 5; i++) {
+    if (players.data[player].board.stacker[i].quantity === i + 1) {
+      const colorTile = players.data[player].board.main[i].colors.find((color) => color.color === players.data[player].board.stacker[i].color)
+      const ID = Number(colorTile?.id)
+      players.data[player].board.main[i].colors[ID].isTrue = true;
+      addPoint(player);
+      let checker = ID + 1;
+      console.log("function calculator for player" + player + "ID: " + ID);
+      console.log("function calculator for player" + player + "checker right: " + checker)
+      for (let l = ID + 1; l < 5; l++) {
+        if (
+          (players.data[player].board.main[i].colors[checker].isTrue === true) &&
+          (l === checker)
+        ) {
+          addPoint(player);
+          checker += 1;
         }
       }
-      if (stackerBoard[i].color === "blue") {
-        for (let k = 0; k < 5; k++) {
-          if (mainBoard[i].colors[k].color === "blue") {
-            players.data[player].board.main[i].colors[k].isTrue = true;
-            addPoint();
-            let checker = k;
-            for (let l = k; l < k + 4; l++) {
-              if (
-                mainBoard[i].colors[checker + 1].isTrue === true &&
-                l === checker
-              ) {
-                addPoint();
-                checker += 1;
-              }
-            }
-            checker = k;
-            for (let l = k; l > k - 4; l--) {
-              if (
-                mainBoard[i].colors[checker - 1].isTrue === true &&
-                l === checker
-              ) {
-                addPoint();
-                checker -= 1;
-              }
-            }
-            checker = k;
-            for (let l = i; l < i + 4; l++) {
-              if (
-                mainBoard[checker + 1].colors[k].isTrue === true &&
-                l === checker
-              ) {
-                addPoint();
-                checker += 1;
-              }
-            }
-            checker = k;
-            for (let l = i; l > i - 4; l--) {
-              if (
-                mainBoard[checker - 1].colors[k].isTrue === true &&
-                l === checker
-              ) {
-                addPoint();
-                checker -= 1;
-              }
-            }
-          }
+      checker = ID - 1;
+      console.log("function calculator for player" + player + "checker left: " + checker)
+      for (let l = ID - 1; l > -1; l--) {
+        if (
+          players.data[player].board.main[i].colors[checker].isTrue === true &&
+          l === checker
+        ) {
+          addPoint(player);
+          checker -= 1;
         }
       }
-      if (stackerBoard[i].color === "white") {
-        for (let k = 0; k < 5; k++) {
-          if (mainBoard[i].colors[k].color === "white") {
-            players.data[player].board.main[i].colors[k].isTrue = true;
-            addPoint();
-            let checker = k;
-            for (let l = k; l < k + 4; l++) {
-              if (
-                mainBoard[i].colors[checker + 1].isTrue === true &&
-                l === checker
-              ) {
-                addPoint();
-                checker += 1;
-              }
-            }
-            checker = k;
-            for (let l = k; l > k - 4; l--) {
-              if (
-                mainBoard[i].colors[checker - 1].isTrue === true &&
-                l === checker
-              ) {
-                addPoint();
-                checker -= 1;
-              }
-            }
-            checker = k;
-            for (let l = i; l < i + 4; l++) {
-              if (
-                mainBoard[checker + 1].colors[k].isTrue === true &&
-                l === checker
-              ) {
-                addPoint();
-                checker += 1;
-              }
-            }
-            checker = k;
-            for (let l = i; l > i - 4; l--) {
-              if (
-                mainBoard[checker - 1].colors[k].isTrue === true &&
-                l === checker
-              ) {
-                addPoint();
-                checker -= 1;
-              }
-            }
-          }
+      checker = i + 1;
+      console.log("function calculator for player" + player + "checker down: " + checker)
+      for (let l = i + 1; l < 5; l++) {
+        if (
+          players.data[player].board.main[checker].colors[ID].isTrue === true &&
+          l === checker
+        ) {
+          addPoint(player);
+          checker += 1;
         }
       }
-      if (stackerBoard[i].color === "yellow") {
-        for (let k = 0; k < 5; k++) {
-          if (mainBoard[i].colors[k].color === "yellow") {
-            players.data[player].board.main[i].colors[k].isTrue = true;
-            addPoint();
-            let checker = k;
-            for (let l = k; l < k + 4; l++) {
-              if (
-                mainBoard[i].colors[checker + 1].isTrue === true &&
-                l === checker
-              ) {
-                addPoint();
-                checker += 1;
-              }
-            }
-            checker = k;
-            for (let l = k; l > k - 4; l--) {
-              if (
-                mainBoard[i].colors[checker - 1].isTrue === true &&
-                l === checker
-              ) {
-                addPoint();
-                checker -= 1;
-              }
-            }
-            checker = k;
-            for (let l = i; l < i + 4; l++) {
-              if (
-                mainBoard[checker + 1].colors[k].isTrue === true &&
-                l === checker
-              ) {
-                addPoint();
-                checker += 1;
-              }
-            }
-            checker = k;
-            for (let l = i; l > i - 4; l--) {
-              if (
-                mainBoard[checker - 1].colors[k].isTrue === true &&
-                l === checker
-              ) {
-                addPoint();
-                checker -= 1;
-              }
-            }
-          }
+      checker = i - 1;
+      console.log("function calculator for player" + player + "checker up: " + checker)
+      for (let l = i - 1; l > -1; l--) {
+        if (
+          players.data[player].board.main[checker].colors[ID].isTrue === true &&
+          l === checker
+        ) {
+          addPoint(player);
+          checker -= 1;
         }
       }
-      if (stackerBoard[i].color === "black") {
-        for (let k = 0; k < 5; k++) {
-          if (mainBoard[i].colors[k].color === "black") {
-            players.data[player].board.main[i].colors[k].isTrue = true;
-            addPoint();
-            let checker = k;
-            for (let l = k; l < k + 4; l++) {
-              if (
-                mainBoard[i].colors[checker + 1].isTrue === true &&
-                l === checker
-              ) {
-                addPoint();
-                checker += 1;
-              }
-            }
-            checker = k;
-            for (let l = k; l > k - 4; l--) {
-              if (
-                mainBoard[i].colors[checker - 1].isTrue === true &&
-                l === checker
-              ) {
-                addPoint();
-                checker -= 1;
-              }
-            }
-            checker = k;
-            for (let l = i; l < i + 4; l++) {
-              if (
-                mainBoard[checker + 1].colors[k].isTrue === true &&
-                l === checker
-              ) {
-                addPoint();
-                checker += 1;
-              }
-            }
-            checker = k;
-            for (let l = i; l > i - 4; l--) {
-              if (
-                mainBoard[checker - 1].colors[k].isTrue === true &&
-                l === checker
-              ) {
-                addPoint();
-                checker -= 1;
-              }
-            }
+      players.data[player].board.stacker[i].quantity = 0;
+      players.data[player].board.stacker[i].color = "";
+      for (let i = 0; i < players.data[player].board.penalty.data.length; i++) {
+          if (i < 3) {
+            players.data[player].score -= 1
+          } else if (i >= 3 && i < 6) {
+            players.data[player].score -= 2
+          } else if (i >= 6) {
+            players.data[player].score -= 3
           }
         }
-      }
+      players.data[player].score -= players.data[player].board.penalty.data.length;
+      players.data[player].board.penalty.data = [];
     }
   }
 }
 
 export function createTraders(quantity: number) {
-  for (let i = 1; i < quantity; i++) {
+  for (let i = 0; i < quantity; i++) {
     board.traders.push({ red: 0, blue: 0, white: 0, black: 0, yellow: 0 });
   }
 }
@@ -408,28 +236,36 @@ export function getRandomTile() {
 }
 
 export function arrangeTiles() {
-  for (let i = 1; i < board.traders.length; i++) {
-    for (let k = 1; k < 4; k++) {
+  for (let k = 0; k < 4; k++) {
+    for (let i = 0; i < board.traders.length; i++) {
       let randomTile = getRandomTile();
       switch (randomTile) {
         case "red":
-          board.traders[i].red = +1;
+          board.traders[i].red += 1;
           break;
         case "blue":
-          board.traders[i].blue = +1;
+          board.traders[i].blue += 1;
           break;
         case "white":
-          board.traders[i].white = +1;
+          board.traders[i].white += 1;
           break;
         case "black":
-          board.traders[i].black = +1;
+          board.traders[i].black += 1;
           break;
         case "yellow":
-          board.traders[i].yellow = +1;
+          board.traders[i].yellow += 1;
           break;
       }
     }
   }
+}
+
+export function startGame() {
+  const numberOfTraders = (players.data.length * 2) + 1
+  createTraders(numberOfTraders);
+  arrangeTiles();
+  gameStatus.playerTurn = Math.floor(Math.random() * players.data.length);
+  gameStatus.gamePhase = "game-started";
 }
 
 export function takeTiles(
@@ -439,6 +275,7 @@ export function takeTiles(
   where: number,
   which?: number
 ) {
+  console.log("using function takeTiles");
   let tilesTaken;
   let redTilesLeft;
   let blueTilesLeft;
@@ -447,17 +284,18 @@ export function takeTiles(
   let yellowTilesLeft;
   let penaltyTiles;
   if (
-    typeof which !== "undefined" &&
     typeof who !== "undefined" &&
     typeof where !== "undefined"
   ) {
     if (from === "trader") {
+      if (typeof which !== "undefined") {
+      console.log("taking tiles from trader")
       switch (what) {
         case "black":
           tilesTaken = board.traders[which].black;
-          board.traders[which].black -= board.traders[which].black;
-          players.data[who - 1].board.stacker[where].color = "black";
-          players.data[who - 1].board.stacker[where].quantity += tilesTaken;
+          board.traders[which].black = 0;
+          players.data[who].board.stacker[where].color = "black";
+          players.data[who].board.stacker[where].quantity += tilesTaken;
           redTilesLeft = board.traders[which].red;
           blueTilesLeft = board.traders[which].blue;
           whiteTilesLeft = board.traders[which].white;
@@ -466,20 +304,24 @@ export function takeTiles(
           board.middle.white += whiteTilesLeft;
           board.middle.yellow += yellowTilesLeft;
           board.middle.red += redTilesLeft;
-          if (players.data[who - 1].board.stacker[where].quantity > where + 1) {
+          board.traders[which].red = 0;
+          board.traders[which].blue = 0;
+          board.traders[which].white = 0;
+          board.traders[which].yellow = 0;
+          if (players.data[who].board.stacker[where].quantity > where + 1) {
             penaltyTiles =
-              players.data[who - 1].board.stacker[where].quantity - (where + 1);
-            players.data[who - 1].board.stacker[where].quantity = where + 1;
-            for (let i = 1; i < penaltyTiles; i++) {
-              players.data[who - 1].board.penalty.data.push("black");
+              players.data[who].board.stacker[where].quantity - (where + 1);
+            players.data[who].board.stacker[where].quantity = where + 1;
+            for (let i = 0; i < penaltyTiles; i++) {
+              players.data[who].board.penalty.data.push("black");
             }
           }
           break;
         case "blue":
           tilesTaken = board.traders[which].blue;
           board.traders[which].blue -= board.traders[which].blue;
-          players.data[who - 1].board.stacker[where].color = "blue";
-          players.data[who - 1].board.stacker[where].quantity = tilesTaken;
+          players.data[who].board.stacker[where].color = "blue";
+          players.data[who].board.stacker[where].quantity += tilesTaken;
           redTilesLeft = board.traders[which].red;
           blackTilesLeft = board.traders[which].black;
           whiteTilesLeft = board.traders[which].white;
@@ -488,20 +330,24 @@ export function takeTiles(
           board.middle.white += whiteTilesLeft;
           board.middle.yellow += yellowTilesLeft;
           board.middle.red += redTilesLeft;
-          if (players.data[who - 1].board.stacker[where].quantity > where + 1) {
+          board.traders[which].red = 0;
+          board.traders[which].black = 0;
+          board.traders[which].white = 0;
+          board.traders[which].yellow = 0;
+          if (players.data[who].board.stacker[where].quantity > where + 1) {
             penaltyTiles =
-              players.data[who - 1].board.stacker[where].quantity - (where + 1);
-            players.data[who - 1].board.stacker[where].quantity = where + 1;
-            for (let i = 1; i < penaltyTiles; i++) {
-              players.data[who - 1].board.penalty.data.push("blue");
+              players.data[who].board.stacker[where].quantity - (where + 1);
+            players.data[who].board.stacker[where].quantity = where + 1;
+            for (let i = 0; i < penaltyTiles; i++) {
+              players.data[who].board.penalty.data.push("blue");
             }
           }
           break;
         case "red":
           tilesTaken = board.traders[which].red;
           board.traders[which].red -= board.traders[which].red;
-          players.data[who - 1].board.stacker[where].color = "red";
-          players.data[who - 1].board.stacker[where].quantity = tilesTaken;
+          players.data[who].board.stacker[where].color = "red";
+          players.data[who].board.stacker[where].quantity += tilesTaken;
           blueTilesLeft = board.traders[which].blue;
           blackTilesLeft = board.traders[which].black;
           whiteTilesLeft = board.traders[which].white;
@@ -510,20 +356,24 @@ export function takeTiles(
           board.middle.white += whiteTilesLeft;
           board.middle.yellow += yellowTilesLeft;
           board.middle.blue += blueTilesLeft;
-          if (players.data[who - 1].board.stacker[where].quantity > where + 1) {
+          board.traders[which].black = 0;
+          board.traders[which].blue = 0;
+          board.traders[which].white = 0;
+          board.traders[which].yellow = 0;
+          if (players.data[who].board.stacker[where].quantity > where + 1) {
             penaltyTiles =
-              players.data[who - 1].board.stacker[where].quantity - (where + 1);
-            players.data[who - 1].board.stacker[where].quantity = where + 1;
-            for (let i = 1; i < penaltyTiles; i++) {
-              players.data[who - 1].board.penalty.data.push("red");
+              players.data[who].board.stacker[where].quantity - (where + 1);
+            players.data[who].board.stacker[where].quantity = where + 1;
+            for (let i = 0; i < penaltyTiles; i++) {
+              players.data[who].board.penalty.data.push("red");
             }
           }
           break;
         case "white":
           tilesTaken = board.traders[which].white;
           board.traders[which].white -= board.traders[which].white;
-          players.data[who - 1].board.stacker[where].color = "white";
-          players.data[who - 1].board.stacker[where].quantity = tilesTaken;
+          players.data[who].board.stacker[where].color = "white";
+          players.data[who].board.stacker[where].quantity += tilesTaken;
           redTilesLeft = board.traders[which].red;
           blackTilesLeft = board.traders[which].black;
           blueTilesLeft = board.traders[which].blue;
@@ -532,20 +382,24 @@ export function takeTiles(
           board.middle.blue += blueTilesLeft;
           board.middle.yellow += yellowTilesLeft;
           board.middle.red += redTilesLeft;
-          if (players.data[who - 1].board.stacker[where].quantity > where + 1) {
+          board.traders[which].red = 0;
+          board.traders[which].blue = 0;
+          board.traders[which].black = 0;
+          board.traders[which].yellow = 0;
+          if (players.data[who].board.stacker[where].quantity > where + 1) {
             penaltyTiles =
-              players.data[who - 1].board.stacker[where].quantity - (where + 1);
-            players.data[who - 1].board.stacker[where].quantity = where + 1;
-            for (let i = 1; i < penaltyTiles; i++) {
-              players.data[who - 1].board.penalty.data.push("white");
+              players.data[who].board.stacker[where].quantity - (where + 1);
+            players.data[who].board.stacker[where].quantity = where + 1;
+            for (let i = 0; i < penaltyTiles; i++) {
+              players.data[who].board.penalty.data.push("white");
             }
           }
           break;
         case "yellow":
           tilesTaken = board.traders[which].yellow;
           board.traders[which].yellow -= board.traders[which].yellow;
-          players.data[who - 1].board.stacker[where].color = "yellow";
-          players.data[who - 1].board.stacker[where].quantity = tilesTaken;
+          players.data[who].board.stacker[where].color = "yellow";
+          players.data[who].board.stacker[where].quantity += tilesTaken;
           redTilesLeft = board.traders[which].red;
           blackTilesLeft = board.traders[which].black;
           blueTilesLeft = board.traders[which].blue;
@@ -554,110 +408,115 @@ export function takeTiles(
           board.middle.blue += blueTilesLeft;
           board.middle.white += whiteTilesLeft;
           board.middle.red += redTilesLeft;
-          if (players.data[who - 1].board.stacker[where].quantity > where + 1) {
+          board.traders[which].red = 0;
+          board.traders[which].blue = 0;
+          board.traders[which].white = 0;
+          board.traders[which].black = 0;
+          if (players.data[who].board.stacker[where].quantity > where + 1) {
             penaltyTiles =
-              players.data[who - 1].board.stacker[where].quantity - (where + 1);
-            players.data[who - 1].board.stacker[where].quantity = where + 1;
-            for (let i = 1; i < penaltyTiles; i++) {
-              players.data[who - 1].board.penalty.data.push("yellow");
+              players.data[who].board.stacker[where].quantity - (where + 1);
+            players.data[who].board.stacker[where].quantity = where + 1;
+            for (let i = 0; i < penaltyTiles; i++) {
+              players.data[who].board.penalty.data.push("yellow");
             }
           }
           break;
       }
+    };
     } else if (from === "remaining") {
       switch (what) {
         case "black":
           tilesTaken = board.middle.black;
           board.middle.black = 0;
-          players.data[who - 1].board.stacker[where].color = "black";
-          players.data[who - 1].board.stacker[where].quantity = tilesTaken;
+          players.data[who].board.stacker[where].color = "black";
+          players.data[who].board.stacker[where].quantity += tilesTaken;
           if (board.middle.FPToken === true) {
             board.middle.FPToken = false;
-            players.data[who - 1].board.penalty.FPToken = true;
-            players.data[who - 1].board.penalty.data.push("FPToken");
+            players.data[who].board.penalty.FPToken = true;
+            players.data[who].board.penalty.data.push("FPT");
           }
-          if (players.data[who - 1].board.stacker[where].quantity > where + 1) {
+          if (players.data[who].board.stacker[where].quantity > where + 1) {
             penaltyTiles =
-              players.data[who - 1].board.stacker[where].quantity - (where + 1);
-            players.data[who - 1].board.stacker[where].quantity = where + 1;
-            for (let i = 1; i < penaltyTiles; i++) {
-              players.data[who - 1].board.penalty.data.push("black");
+              players.data[who].board.stacker[where].quantity - (where + 1);
+            players.data[who].board.stacker[where].quantity = where + 1;
+            for (let i = 0; i < penaltyTiles; i++) {
+              players.data[who].board.penalty.data.push("black");
             }
           }
           break;
         case "blue":
           tilesTaken = board.middle.blue;
           board.middle.blue = 0;
-          players.data[who - 1].board.stacker[where].color = "blue";
-          players.data[who - 1].board.stacker[where].quantity = tilesTaken;
+          players.data[who].board.stacker[where].color = "blue";
+          players.data[who].board.stacker[where].quantity += tilesTaken;
           if (board.middle.FPToken === true) {
             board.middle.FPToken = false;
-            players.data[who - 1].board.penalty.FPToken = true;
-            players.data[who - 1].board.penalty.data.push("FPToken");
+            players.data[who].board.penalty.FPToken = true;
+            players.data[who].board.penalty.data.push("FPToken");
           }
-          if (players.data[who - 1].board.stacker[where].quantity > where + 1) {
+          if (players.data[who].board.stacker[where].quantity > where + 1) {
             penaltyTiles =
-              players.data[who - 1].board.stacker[where].quantity - (where + 1);
-            players.data[who - 1].board.stacker[where].quantity = where + 1;
-            for (let i = 1; i < penaltyTiles; i++) {
-              players.data[who - 1].board.penalty.data.push("blue");
+              players.data[who].board.stacker[where].quantity - (where + 1);
+            players.data[who].board.stacker[where].quantity = where + 1;
+            for (let i = 0; i < penaltyTiles; i++) {
+              players.data[who].board.penalty.data.push("blue");
             }
           }
           break;
         case "red":
           tilesTaken = board.middle.red;
           board.middle.red = 0;
-          players.data[who - 1].board.stacker[where].color = "red";
-          players.data[who - 1].board.stacker[where].quantity = tilesTaken;
+          players.data[who].board.stacker[where].color = "red";
+          players.data[who].board.stacker[where].quantity += tilesTaken;
           if (board.middle.FPToken === true) {
             board.middle.FPToken = false;
-            players.data[who - 1].board.penalty.FPToken = true;
-            players.data[who - 1].board.penalty.data.push("FPToken");
+            players.data[who].board.penalty.FPToken = true;
+            players.data[who].board.penalty.data.push("FPToken");
           }
-          if (players.data[who - 1].board.stacker[where].quantity > where + 1) {
+          if (players.data[who].board.stacker[where].quantity > where + 1) {
             penaltyTiles =
-              players.data[who - 1].board.stacker[where].quantity - (where + 1);
-            players.data[who - 1].board.stacker[where].quantity = where + 1;
-            for (let i = 1; i < penaltyTiles; i++) {
-              players.data[who - 1].board.penalty.data.push("red");
+              players.data[who].board.stacker[where].quantity - (where + 1);
+            players.data[who].board.stacker[where].quantity = where + 1;
+            for (let i = 0; i < penaltyTiles; i++) {
+              players.data[who].board.penalty.data.push("red");
             }
           }
           break;
         case "white":
           tilesTaken = board.middle.white;
           board.middle.white = 0;
-          players.data[who - 1].board.stacker[where].color = "white";
-          players.data[who - 1].board.stacker[where].quantity = tilesTaken;
+          players.data[who].board.stacker[where].color = "white";
+          players.data[who].board.stacker[where].quantity += tilesTaken;
           if (board.middle.FPToken === true) {
             board.middle.FPToken = false;
-            players.data[who - 1].board.penalty.FPToken = true;
-            players.data[who - 1].board.penalty.data.push("FPToken");
+            players.data[who].board.penalty.FPToken = true;
+            players.data[who].board.penalty.data.push("FPToken");
           }
-          if (players.data[who - 1].board.stacker[where].quantity > where + 1) {
+          if (players.data[who].board.stacker[where].quantity > where + 1) {
             penaltyTiles =
-              players.data[who - 1].board.stacker[where].quantity - (where + 1);
-            players.data[who - 1].board.stacker[where].quantity = where + 1;
-            for (let i = 1; i < penaltyTiles; i++) {
-              players.data[who - 1].board.penalty.data.push("white");
+              players.data[who].board.stacker[where].quantity - (where + 1);
+            players.data[who].board.stacker[where].quantity = where + 1;
+            for (let i = 0; i < penaltyTiles; i++) {
+              players.data[who].board.penalty.data.push("white");
             }
           }
           break;
         case "yellow":
           tilesTaken = board.middle.yellow;
           board.middle.yellow = 0;
-          players.data[who - 1].board.stacker[where].color = "yellow";
-          players.data[who - 1].board.stacker[where].quantity = tilesTaken;
+          players.data[who].board.stacker[where].color = "yellow";
+          players.data[who].board.stacker[where].quantity += tilesTaken;
           if (board.middle.FPToken === true) {
             board.middle.FPToken = false;
-            players.data[who - 1].board.penalty.FPToken = true;
-            players.data[who - 1].board.penalty.data.push("FPToken");
+            players.data[who].board.penalty.FPToken = true;
+            players.data[who].board.penalty.data.push("FPToken");
           }
-          if (players.data[who - 1].board.stacker[where].quantity > where + 1) {
+          if (players.data[who].board.stacker[where].quantity > where + 1) {
             penaltyTiles =
-              players.data[who - 1].board.stacker[where].quantity - (where + 1);
-            players.data[who - 1].board.stacker[where].quantity = where + 1;
-            for (let i = 1; i < penaltyTiles; i++) {
-              players.data[who - 1].board.penalty.data.push("yellow");
+              players.data[who].board.stacker[where].quantity - (where + 1);
+            players.data[who].board.stacker[where].quantity = where + 1;
+            for (let i = 0; i < penaltyTiles; i++) {
+              players.data[who].board.penalty.data.push("yellow");
             }
           }
           break;
@@ -666,18 +525,47 @@ export function takeTiles(
   }
 }
 
-export function roundEnd() {
-  for (let i = 1; i < players.data.length; i++) {
-    let player = i - 1;
-    calculatePoints(player);
+export function IsMoveLegal(what: string, who: number, where: number) {
+  const colorTile = players.data[who].board.main[where].colors.find((color) => color.color === what)
+  const ID = Number(colorTile?.id)
+  if (
+    (players.data[who].board.stacker[where].color === what || players.data[who].board.stacker[where].color === "")
+  ) {
+    if (!players.data[who].board.main[where].colors[ID].isTrue) {
+      return true;
+    } else {
+      return false;
+    }
+  } else {
+    return false;
   }
-  for (let i = 1; i < players.data.length; i++) {
+}
+
+function checkForWholeRow(player: number, k: number) {
+  if (
+    players.data[player].board.main[k].colors[0].isTrue &&
+    players.data[player].board.main[k].colors[1].isTrue &&
+    players.data[player].board.main[k].colors[2].isTrue &&
+    players.data[player].board.main[k].colors[3].isTrue &&
+    players.data[player].board.main[k].colors[4].isTrue
+  ) {
+    return true
+  } else {
+    return false
+  }
+}
+
+export function roundEnd() {
+  for (let i = 0; i < players.data.length; i++) {
+    calculatePoints(i);
+  }
+  for (let i = 0; i < players.data.length; i++) {
     if (
-      players.data[i - 1].board.main[0].colors.length === 5 ||
-      players.data[i - 1].board.main[1].colors.length === 5 ||
-      players.data[i - 1].board.main[2].colors.length === 5 ||
-      players.data[i - 1].board.main[3].colors.length === 5 ||
-      players.data[i - 1].board.main[4].colors.length === 5
+      checkForWholeRow(i, 0) ||
+      checkForWholeRow(i, 1) ||
+      checkForWholeRow(i, 2) ||
+      checkForWholeRow(i, 3) ||
+      checkForWholeRow(i, 4)
     ) {
       gameStatus.finished = true;
     }
@@ -860,7 +748,7 @@ export function finishGame() {
 }
 
 export function nextTurn() {
-  if (gameStatus.turn < players.data.length - 1) {
+  if (gameStatus.playerTurn < players.data.length - 1) {
     gameStatus.playerTurn += 1;
   } else {
     gameStatus.playerTurn = 0;
@@ -870,13 +758,13 @@ export function nextTurn() {
 
 export function checkForTiles() {
   let emptySpaces = 0;
-  for (let i = 1; i < board.traders.length; i++) {
+  for (let i = 0; i < board.traders.length; i++) {
     if (
-      board.traders[i-1].black === 0 &&
-      board.traders[i-1].blue === 0 &&
-      board.traders[i-1].red === 0 &&
-      board.traders[i-1].white === 0 &&
-      board.traders[i-1].yellow === 0
+      board.traders[i].black === 0 &&
+      board.traders[i].blue === 0 &&
+      board.traders[i].red === 0 &&
+      board.traders[i].white === 0 &&
+      board.traders[i].yellow === 0
       ) {
         emptySpaces += 1;
       }
@@ -896,6 +784,8 @@ export function checkForTiles() {
 }
 
 export function nextRound() {
+  console.log("next Round initiated")
+  gameStatus.tilesLeft = true;
   arrangeTiles();
   for (let i = 0; i < players.data.length; i++) {
     if (players.data[i].board.penalty.FPToken === true) {
@@ -910,13 +800,8 @@ export function nextRound() {
 export function updateGameStatus() {
   const interpretatePlayers = () => {
     let interpretatedPlayers: any[] = [];
-    for (let i = 0; i < players.data.length - 1; i++) {
-      const penaltyBoardFPT = [];
-      if (players.data[i].board.penalty.FPToken) {
-        penaltyBoardFPT.push("FPT")
-      }
-      const penaltyBoardNoFPT = players.data[i].board.penalty.data
-      const penaltyBoard = penaltyBoardFPT.concat(penaltyBoardNoFPT);
+    for (let i = 0; i < players.data.length; i++) {
+      const penaltyBoard = players.data[i].board.penalty.data
       const interpretatedPlayer = {
         id: players.data[i].id,
         name: players.data[i].name,
@@ -970,7 +855,7 @@ export function updateGameStatus() {
     }
 
     const interpretatedRemaining = {
-      FPT: isFPT,
+      FPT: isFPT(),
       white: board.middle.white,
       red: board.middle.red,
       black: board.middle.black,
@@ -983,21 +868,21 @@ export function updateGameStatus() {
 
   function interpretateTraders() {
     const traders: any[] = [];
-    for (let i = 0; i < board.traders.length - 1; i++) {
+    for (let i = 0; i < board.traders.length; i++) {
       const trader: any[] = [];
-      for (let k=1; k < board.traders[i].black; k++) {
+      for (let k=0; k < board.traders[i].black; k++) {
         trader.push("black")
       };
-      for (let k=1; k < board.traders[i].red; k++) {
+      for (let k=0; k < board.traders[i].red; k++) {
         trader.push("red")
       };
-      for (let k=1; k < board.traders[i].white; k++) {
+      for (let k=0; k < board.traders[i].white; k++) {
         trader.push("white")
       };
-      for (let k=1; k < board.traders[i].blue; k++) {
+      for (let k=0; k < board.traders[i].blue; k++) {
         trader.push("blue")
       };
-      for (let k=1; k < board.traders[i].yellow; k++) {
+      for (let k=0; k < board.traders[i].yellow; k++) {
         trader.push("yellow")
       };
       traders.push(trader);

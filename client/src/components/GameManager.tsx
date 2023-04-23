@@ -1,15 +1,28 @@
-import React, { PropsWithChildren } from "react";
+import React, { PropsWithChildren, useEffect } from "react";
 import TextField from "@mui/material/TextField";
 import Button from "@mui/material/Button";
 import { TileProperties, findColor } from "../styles/TileStyle";
 import axios from "axios";
 import "../styles/GameStyle.css";
-import { hover } from "@testing-library/user-event/dist/hover";
+
+function useInterval(callback: () => void, delay: number) {
+  React.useEffect(() => {
+    const id = setInterval(callback, delay);
+    return () => clearInterval(id);
+  }, [callback, delay]);
+}
 
 export type Color = "red" | "blue" | "white" | "black" | "yellow";
 const FPT = "FPT";
 type PenaltyColor = Color | typeof FPT;
 type Trader = Color[];
+
+interface TileProps {
+  color: string;
+  unavailable?: boolean;
+  small?: boolean;
+  position: string;
+}
 
 interface StackerRow {
   color: Color;
@@ -36,7 +49,7 @@ interface GameBoard {
   traders: Trader[];
 }
 
-interface GameState {
+type GameState = {
   players: Player[];
   board: GameBoard;
   turn: number;
@@ -45,202 +58,36 @@ interface GameState {
   winner: number;
   readyPlayers: number;
   gamePhase: string;
-}
+};
 
-interface NewGameState {
+interface IGameState {
   state: GameState;
   setState: (state: GameState) => void;
 }
 
-/* function newGameState(): GameState {
+function newGameState(): IGameState {
   return {
-    players: [],
-    board: {
-      remaining: {
-        FPT: 0,
-        white: 0,
-        red: 0,
-        black: 0,
-        blue: 0,
-        yellow: 0,
-      },
-      traders: [],
-    },
-    turn: 0,
-    round: 0,
-    playerTurn: 0,
-    winner: 0,
-    readyPlayers: 0,
-    gamePhase: "game-started",
-  };
-}
-*/
-
-function newGameState(): GameState {
-  return {
-    players: [
-      {
-        id: 0,
-        name: "Mateusz",
-        score: 0,
-        board: {
-          mainRows: [
-            {
-              blue: false,
-              yellow: false,
-              red: false,
-              black: false,
-              white: false,
-            },
-            {
-              white: false,
-              blue: false,
-              yellow: false,
-              red: false,
-              black: false,
-            },
-            {
-              black: false,
-              white: false,
-              blue: false,
-              yellow: false,
-              red: false,
-            },
-            {
-              red: false,
-              black: false,
-              white: false,
-              blue: false,
-              yellow: false,
-            },
-            {
-              yellow: false,
-              red: false,
-              black: false,
-              white: false,
-              blue: false,
-            },
-          ],
-          stackerRows: [
-            {
-              color: "red",
-              quantity: 1,
-            },
-            {
-              color: "blue",
-              quantity: 2,
-            },
-            {
-              color: "white",
-              quantity: 3,
-            },
-            {
-              color: "red",
-              quantity: 4,
-            },
-            {
-              color: "black",
-              quantity: 5,
-            },
-          ],
-          penaltyBoard: ["red"],
+    state: {
+      players: [],
+      board: {
+        remaining: {
+          FPT: 0,
+          white: 0,
+          red: 0,
+          black: 0,
+          blue: 0,
+          yellow: 0,
         },
+        traders: [],
       },
-      {
-        id: 1,
-        name: "Asia",
-        score: 20,
-        board: {
-          mainRows: [
-            {
-              blue: false,
-              yellow: false,
-              red: true,
-              black: false,
-              white: false,
-            },
-            {
-              white: true,
-              blue: false,
-              yellow: false,
-              red: false,
-              black: false,
-            },
-            {
-              black: false,
-              white: false,
-              blue: false,
-              yellow: false,
-              red: false,
-            },
-            {
-              red: false,
-              black: false,
-              white: false,
-              blue: false,
-              yellow: false,
-            },
-            {
-              yellow: false,
-              red: false,
-              black: false,
-              white: false,
-              blue: false,
-            },
-          ],
-          stackerRows: [
-            {
-              color: "red",
-              quantity: 1,
-            },
-            {
-              color: "blue",
-              quantity: 2,
-            },
-            {
-              color: "white",
-              quantity: 3,
-            },
-            {
-              color: "red",
-              quantity: 0,
-            },
-            {
-              color: "black",
-              quantity: 3,
-            },
-          ],
-          penaltyBoard: ["blue", "red"],
-        },
-      },
-    ],
-    board: {
-      remaining: {
-        FPT: 1,
-        white: 5,
-        red: 3,
-        black: 2,
-        blue: 0,
-        yellow: 1,
-      },
-      traders: [
-        ["red", "red", "blue", "red"],
-        ["white", "red", "black", "yellow"],
-        ["black", "black", "white", "blue"],
-        ["blue", "blue", "blue", "red"],
-        ["red", "white", "yellow", "yellow"],
-        ["yellow", "white", "red", "yellow"],
-        ["blue", "black", "black", "red"],
-        ["red", "red", "blue", "white"],
-        ["red", "white", "yellow", "yellow"],
-      ],
+      turn: 0,
+      round: 0,
+      playerTurn: 0,
+      winner: 0,
+      readyPlayers: 0,
+      gamePhase: "not-connected",
     },
-    turn: 0,
-    round: 0,
-    playerTurn: 0,
-    winner: 0,
-    readyPlayers: 0,
-    gamePhase: "game-started",
+    setState: () => {},
   };
 }
 
@@ -329,19 +176,46 @@ const HoveredTilePositionContext = React.createContext(
 const HoveredTileColorContext = React.createContext(newHoveredTileColor());
 
 export function GameManager({ children }: PropsWithChildren<Props>) {
-  const [state, setState] = React.useState(newGameState());
-  const [host, setHost] = React.useState("");
+  const [state, setState] = React.useState(newGameState().state);
+  const [host, setHost] = React.useState("http://localhost:8000");
   const [currentPlayerID, setCurrentPlayerID] = React.useState(0);
   const [chosenTileColor, setChosenTileColor] = React.useState("");
   const [chosenTilePosition, setChosenTilePosition] = React.useState("");
   const [hoveredTileColor, setHoveredTileColor] = React.useState("");
   const [hoveredTilePosition, setHoveredTilePosition] = React.useState("");
+  const UpdateGameAddress = host + "/UpdateGame";
+
+  function updateGameState() {
+    axios.post(UpdateGameAddress).then((res) => {
+      const response = res.data as IConnectPageResponse;
+      if (response.success) {
+        setState(response.data);
+        if (response.data.gamePhase === "game-finished") {
+          const winner = state.players.find(
+            (player) => player.id === state.winner
+          );
+          alert(
+            "Game over!" +
+              <br /> +
+              <br /> +
+              "The winner is..." +
+              <br /> +
+              winner?.name +
+              "!!!"
+          );
+        }
+      }
+    });
+  }
+
+  useInterval(updateGameState, 3000);
+
   return (
     <CurrentPlayerIDContext.Provider
       value={{ currentPlayerID, setCurrentPlayerID }}
     >
       <ConnectionInfoContext.Provider value={{ host, setHost }}>
-        <GameStateContext.Provider value={state}>
+        <GameStateContext.Provider value={{ state, setState }}>
           <ChosenTileColorContext.Provider
             value={{ chosenTileColor, setChosenTileColor }}
           >
@@ -367,27 +241,27 @@ export function GameManager({ children }: PropsWithChildren<Props>) {
 
 function useRemaining() {
   const gameState = React.useContext(GameStateContext);
-  return gameState.board.remaining;
+  return gameState.state.board.remaining;
 }
 
 function useTraders() {
   const gameState = React.useContext(GameStateContext);
-  return gameState.board.traders;
+  return gameState.state.board.traders;
 }
 
 function usePlayers() {
   const gameState = React.useContext(GameStateContext);
-  return gameState.players;
+  return gameState.state.players;
 }
 
 function useReadyPlayers() {
   const gameState = React.useContext(GameStateContext);
-  return gameState.readyPlayers;
+  return gameState.state.readyPlayers;
 }
 
 function useGamePhase() {
   const gamePhase = React.useContext(GameStateContext);
-  return gamePhase.gamePhase;
+  return gamePhase.state.gamePhase;
 }
 
 function useHost() {
@@ -402,7 +276,7 @@ function useSetHost() {
 
 function usePlayerTurn() {
   const gameState = React.useContext(GameStateContext);
-  return gameState.playerTurn;
+  return gameState.state.playerTurn;
 }
 
 function useCurrentPlayerID() {
@@ -440,6 +314,16 @@ function useHoveredTileColor() {
   return hoveredTileColor.hoveredTileColor;
 }
 
+function useSetGameState() {
+  const gameState = React.useContext(GameStateContext);
+  return gameState.setState;
+}
+
+function useGameState() {
+  const gameState = React.useContext(GameStateContext);
+  return gameState.state;
+}
+
 function useSetHoveredTileColor() {
   const hoveredTileColor = React.useContext(HoveredTileColorContext);
   return hoveredTileColor.setHoveredTileColor;
@@ -453,13 +337,6 @@ function useHoveredTilePosition() {
 function useSetHoveredTilePosition() {
   const hoveredTilePosition = React.useContext(HoveredTilePositionContext);
   return hoveredTilePosition.setHoveredTilePosition;
-}
-
-interface TileProps {
-  color: string;
-  unavailable?: boolean;
-  small?: boolean;
-  position: string;
 }
 
 function Tile({ color, unavailable, small, position }: TileProps) {
@@ -565,12 +442,20 @@ function RemainingBoard() {
   const remaining = useRemaining();
   return (
     <div className="remaining-board">
-      {Object.entries(remaining).map(([color, count]) => (
-        <>
-          {Array.from({ length: count }).map(() => (
-            <Tile color={color} position="remaining" />
-          ))}
-        </>
+      {Object.entries(remaining).map(([color, count], remindex) => (
+        <div key={"remaining-board" + remindex}>
+          <>
+            {Array.from({ length: count }).map((x, index) => (
+              <Tile
+                color={color}
+                position="remaining"
+                key={
+                  "currentplayer-remainingboard-" + remindex + "tile" + index
+                }
+              />
+            ))}
+          </>
+        </div>
       ))}
     </div>
   );
@@ -581,13 +466,19 @@ interface IPlayerStackerRow {
   stackerIndex: number;
 }
 
+interface IPlayersTurnResponse {
+  data: GameState;
+}
+
 function PlayerStackerRow({ row, stackerIndex }: IPlayerStackerRow) {
+  const chosenTileColor = useChosenTileColor();
+  const chosenTilePosition = useChosenTilePosition();
+  const from = chosenTilePosition.replace(/[0-9]/g, "");
+  const which = Number(chosenTilePosition.replace(/^\D+/g, ""));
+  const currentPlayerID = useCurrentPlayerID();
+  const setGameState = useSetGameState();
+  const GameState = useGameState();
   function handleClick() {
-    const chosenTileColor = useChosenTileColor();
-    const chosenTilePosition = useChosenTilePosition();
-    const from = chosenTilePosition.replace(/[0-9]/g, "");
-    const which = Number(chosenTilePosition.replace(/^\D+/g, ""));
-    const currentPlayerID = useCurrentPlayerID();
     let data;
     if (from === "trader") {
       data = {
@@ -610,16 +501,25 @@ function PlayerStackerRow({ row, stackerIndex }: IPlayerStackerRow) {
       chosenTileColor !== "FPT" &&
       chosenTilePosition !== ""
     ) {
-      axios.post("http://localhost:8000/PlayersTurn", data).then((response) => {
-        const updatedGameState = response.data as GameState;
+      console.log(data);
+      axios.post("http://localhost:8000/PlayersTurn", data).then((res) => {
+        const response = res.data as IPlayersTurnResponse;
+        const updatedGameState = response.data;
+        console.log("UPDATED GAME STATUS: " + updatedGameState);
+        setGameState(updatedGameState);
+        console.log("GAMESTATE AFTER UPDATE:" + GameState);
       });
     }
   }
 
   return (
     <div className="currentPlayer-stacker-row" onClick={handleClick}>
-      {Array.from({ length: row.quantity }).map(() => (
-        <Tile color={row.color} position={"currentPlayerStacker"} />
+      {Array.from({ length: row.quantity }).map((color, index) => (
+        <Tile
+          color={row.color}
+          position={"currentPlayerStacker"}
+          key={"currentplayer-" + "stackerrow" + "tile" + index}
+        />
       ))}
     </div>
   );
@@ -629,11 +529,19 @@ function TradersBoard() {
   const traders = useTraders();
   return (
     <div className="traders-board">
-      {traders.map((trader, index) => (
-        <div className="trader" id={"trader" + index}>
+      {traders.map((trader, traderID) => (
+        <div
+          className="trader"
+          id={"trader" + traderID}
+          key={"trader" + traderID}
+        >
           <div className="inside-of-trader">
-            {trader.map((traderColor) => (
-              <Tile color={traderColor} position={"trader" + index} />
+            {trader.map((traderColor, index) => (
+              <Tile
+                color={traderColor}
+                position={"trader" + traderID}
+                key={"trader" + traderID + "tile" + index}
+              />
             ))}
           </div>
         </div>
@@ -660,17 +568,25 @@ function CurrentPlayerBoard() {
       <div className="currentPlayer-boards">
         <div className="currentPlayer-stackerBoard">
           {currentPlayer?.board.stackerRows.map((row, index) => (
-            <PlayerStackerRow row={row} stackerIndex={index} />
+            <PlayerStackerRow
+              row={row}
+              stackerIndex={index}
+              key={"currentplayer-stackerrow" + index}
+            />
           ))}
         </div>
         <div className="currentPlayer-mainBoard">
-          {currentPlayer?.board.mainRows.map((row, index) => (
-            <div className="currentPlayer-mainRow">
-              {Object.entries(row).map((properties) => (
+          {currentPlayer?.board.mainRows.map((row, mainrowID) => (
+            <div
+              className="currentPlayer-mainRow"
+              key={"currentplayer-mainrow" + mainrowID}
+            >
+              {Object.entries(row).map((properties, index) => (
                 <Tile
                   color={properties[0]}
                   unavailable={!properties[1]}
-                  position={"currentPlayerMain" + index}
+                  position={"currentPlayerMain" + mainrowID}
+                  key={"currentplayer-mainrow" + mainrowID + "tile" + index}
                 />
               ))}
             </div>
@@ -678,8 +594,12 @@ function CurrentPlayerBoard() {
         </div>
       </div>
       <div className="currentPlayer-penalty">
-        {currentPlayer?.board.penaltyBoard.map((tileColor) => (
-          <Tile color={tileColor} position="currentPlayerPenalty" />
+        {currentPlayer?.board.penaltyBoard.map((tileColor, index) => (
+          <Tile
+            color={tileColor}
+            position="currentPlayerPenalty"
+            key={"currentplayer-" + "penalty-" + "tile" + index}
+          />
         ))}
       </div>
     </div>
@@ -693,7 +613,7 @@ function OpponentsBoards() {
   return (
     <div className="opponents">
       {opponents.map((opponent) => (
-        <div className="opponent">
+        <div className="opponent" key={opponent.id}>
           <div className="opponent-info">
             <div className="opponent-name">
               <p>{opponent.name}</p>
@@ -704,23 +624,49 @@ function OpponentsBoards() {
           </div>
           <div className="opponent-boards">
             <div className="opponent-stackerBoard">
-              {opponent.board.stackerRows.map((row, index) => (
-                <div className="opponents-stacker-row">
-                  {Array.from({ length: row.quantity }).map(() => (
-                    <Tile color={row.color} small position="opponent" />
+              {opponent.board.stackerRows.map((row, stackerID) => (
+                <div
+                  className="opponents-stacker-row"
+                  key={"opponent" + opponent.id + "stacker-row" + stackerID}
+                >
+                  {Array.from({ length: row.quantity }).map((color, index) => (
+                    <Tile
+                      color={row.color}
+                      small
+                      position="opponent"
+                      key={
+                        "opponent" +
+                        opponent.id +
+                        "stacker-row" +
+                        stackerID +
+                        "tile" +
+                        index
+                      }
+                    />
                   ))}
                 </div>
               ))}
             </div>
             <div className="opponent-mainBoard">
-              {opponent.board.mainRows.map((row, index) => (
-                <div className="opponent-mainRow">
-                  {Object.entries(row).map((properties) => (
+              {opponent.board.mainRows.map((row, mainrowID) => (
+                <div
+                  className="opponent-mainRow"
+                  key={"opponent" + opponent.id + "main-row" + mainrowID}
+                >
+                  {Object.entries(row).map((properties, index) => (
                     <Tile
                       color={properties[0]}
                       unavailable={!properties[1]}
                       small
                       position="opponent"
+                      key={
+                        "opponent" +
+                        opponent.id +
+                        "main-row" +
+                        mainrowID +
+                        "tile" +
+                        index
+                      }
                     />
                   ))}
                 </div>
@@ -728,8 +674,13 @@ function OpponentsBoards() {
             </div>
           </div>
           <div className="opponent-penalty">
-            {opponent.board.penaltyBoard.map((tileColor) => (
-              <Tile color={tileColor} small position="opponent" />
+            {opponent.board.penaltyBoard.map((tileColor, index) => (
+              <Tile
+                color={tileColor}
+                small
+                position="opponent"
+                key={"opponent" + opponent.id + "penaltytile" + index}
+              />
             ))}
           </div>
         </div>
@@ -738,8 +689,22 @@ function OpponentsBoards() {
   );
 }
 
-function ConnectPage() {
-  const [typedServerHost, setTypedServerHost] = React.useState("");
+type PageType = "not-connected" | "waiting-for-players" | "game-started";
+
+interface PageProps {
+  page: PageType;
+  setPage: (page: PageType) => void;
+}
+
+interface IConnectPageResponse {
+  success: boolean;
+  data: GameState;
+}
+
+function ConnectPage({ setPage }: PageProps, page: PageType) {
+  const [typedServerHost, setTypedServerHost] = React.useState(
+    "http://localhost:8000"
+  );
   const handleTypedServerHost = (event: any) => {
     setTypedServerHost(event.target.value);
   };
@@ -749,44 +714,83 @@ function ConnectPage() {
     setTypedName(event.target.value);
   };
 
+  const setGameState = useSetGameState();
+
   const setHost = useSetHost();
   setHost(typedServerHost);
+  const setCurrentPlayerID = useSetCurrentPlayerID();
 
   function connectToServer() {
-    axios.post(typedServerHost);
+    const data = {
+      name: typedName,
+    };
+    const NewPlayer = typedServerHost + "/NewPlayer";
+    axios.post(NewPlayer, data).then((res) => {
+      const response = res.data as IConnectPageResponse;
+      if (response.success) {
+        const currentPlayerID = response.data.players.length - 1;
+        console.log(currentPlayerID);
+        setCurrentPlayerID(currentPlayerID);
+        setPage("waiting-for-players");
+        setGameState(response.data);
+        console.log(page);
+      } else {
+        alert("connection failed");
+      }
+    });
   }
 
   return (
-    <div>
+    <div className="connect-page">
+      <div className="logo" />
       <TextField
         id="outlined-basic"
-        label="Outlined"
+        label="Server"
         variant="outlined"
         onChange={handleTypedServerHost}
-        defaultValue="localhost"
+        defaultValue="http://localhost:8000"
       />
       <TextField
         id="outlined-basic"
-        label="Outlined"
+        label="Name"
         variant="outlined"
         onChange={handleTypedName}
       />
-      <Button variant="contained">Connect</Button>
+      <Button variant="contained" onClick={connectToServer}>
+        Connect
+      </Button>
     </div>
   );
 }
 
-function WaitingForStart() {
+function WaitingForStart({ setPage }: PageProps) {
   const players = usePlayers();
   const readyPlayers = useReadyPlayers();
   const serverHost = useHost();
+  const setGameState = useSetGameState();
+  const UpdateGameAddress = serverHost + "/UpdateGame";
+  const StartTheGameAddress = serverHost + "/StartGame";
+  const gamePhase = useGamePhase();
 
   function readyThePlayer() {
-    axios.post(serverHost);
+    axios.post(StartTheGameAddress).then((res) => {
+      const response = res.data as IConnectPageResponse;
+      if (response.success) {
+        setGameState(response.data);
+        setPage("game-started");
+      } else {
+        setGameState(response.data);
+      }
+    });
+  }
+
+  if (gamePhase === "game-started") {
+    setPage("game-started");
   }
 
   return (
     <div>
+      <div className="logo" />
       <p>Connected to server</p>
       <div>
         <p>Waiting for other players...</p>
@@ -794,7 +798,9 @@ function WaitingForStart() {
       <p>
         {readyPlayers}/{players.length}
       </p>
-      <Button variant="contained">Ready!</Button>
+      <Button variant="contained" onClick={readyThePlayer}>
+        Ready!
+      </Button>
     </div>
   );
 }
@@ -837,21 +843,25 @@ function Game() {
 }
 
 export function ShowGame() {
-  const phase = useGamePhase();
-  switch (phase) {
-    case "not-connected":
-      return (
-        <MenuPage>
-          <ConnectPage />
-        </MenuPage>
-      );
-    case "waiting-for-players":
-      return (
-        <MenuPage>
-          <WaitingForStart />
-        </MenuPage>
-      );
-    case "game-started":
-      return <Game />;
-  }
+  const [page, setPage] = React.useState("not-connected");
+
+  const renderPage = () => {
+    switch (page) {
+      case "not-connected":
+        return (
+          <MenuPage>
+            <ConnectPage setPage={setPage} page={page} />
+          </MenuPage>
+        );
+      case "waiting-for-players":
+        return (
+          <MenuPage>
+            <WaitingForStart setPage={setPage} page={page} />
+          </MenuPage>
+        );
+      case "game-started":
+        return <Game />;
+    }
+  };
+  return <div>{renderPage()}</div>;
 }

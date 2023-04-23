@@ -29,7 +29,7 @@ export const TileProperties = {
   },
   size: {
     standard: "50px",
-    small: "25px",
+    small: "37.5px",
   },
   borderRadius: {
     standard: "8px",
