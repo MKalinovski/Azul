@@ -502,7 +502,6 @@ function PlayerStackerRow({ row, stackerIndex }: IPlayerStackerRow) {
       chosenTileColor !== "FPT" &&
       chosenTilePosition !== ""
     ) {
-      console.log(data);
       axios.post(playerTurnAddress, data).then((res) => {
         const response = res.data as IPlayersTurnResponse;
         const updatedGameState = response.data;
@@ -553,6 +552,43 @@ function CurrentPlayerBoard() {
   const players = usePlayers();
   const currentPlayerID = useCurrentPlayerID();
   const currentPlayer = players.find((player) => player.id === currentPlayerID);
+  const chosenTileColor = useChosenTileColor();
+  const chosenTilePosition = useChosenTilePosition();
+  const from = chosenTilePosition.replace(/[0-9]/g, "");
+  const which = Number(chosenTilePosition.replace(/^\D+/g, ""));
+  const host = useHost();
+  const setGameState = useSetGameState();
+  const playerTurnAddress = host + "/PlayersTurn";
+  function handleClick() {
+    let data;
+    if (from === "trader") {
+      data = {
+        from: from,
+        what: chosenTileColor,
+        who: currentPlayerID,
+        where: 5,
+        which: which,
+      };
+    } else if (from === "remaining") {
+      data = {
+        from: from,
+        what: chosenTileColor,
+        who: currentPlayerID,
+        where: 5,
+      };
+    }
+    if (
+      chosenTileColor !== "" &&
+      chosenTileColor !== "FPT" &&
+      chosenTilePosition !== ""
+    ) {
+      axios.post(playerTurnAddress, data).then((res) => {
+        const response = res.data as IPlayersTurnResponse;
+        const updatedGameState = response.data;
+        setGameState(updatedGameState);
+      });
+    }
+  }
 
   return (
     <div className="currentPlayer">
@@ -592,7 +628,7 @@ function CurrentPlayerBoard() {
           ))}
         </div>
       </div>
-      <div className="currentPlayer-penalty">
+      <div className="currentPlayer-penalty" onClick={handleClick}>
         {currentPlayer?.board.penaltyBoard.map((tileColor, index) => (
           <Tile
             color={tileColor}

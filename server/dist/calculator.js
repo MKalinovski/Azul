@@ -695,6 +695,7 @@ function finishGame() {
         calculateBonusPoints(player);
     }
     exports.gameStatus.winner = determineWinner();
+    exports.gameStatus.gamePhase = "game-finished";
     // check who has highest score and determine the winner
 }
 exports.finishGame = finishGame;

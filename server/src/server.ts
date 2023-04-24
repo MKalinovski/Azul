@@ -57,23 +57,23 @@ app.post('/PlayersTurn', (req, res) => {
       if (gameStatus.finished === true) {
         finishGame();
         const clientUpdateStatus = updateGameStatus();
-        res.json({data: clientUpdateStatus})
+        res.send({data: clientUpdateStatus})
       } else {
         console.log("got to nextRound");
         nextRound();
         const clientUpdateStatus = updateGameStatus();
-        res.json({data: clientUpdateStatus})
+        res.send({data: clientUpdateStatus})
       }
     } else {
       // Start next turn
       nextTurn();
       const clientUpdateStatus = updateGameStatus();
       console.log("UPDATED GAME STATUS:" + clientUpdateStatus)
-      res.json({data: clientUpdateStatus})
+      res.send({data: clientUpdateStatus})
     }
   } else {
     const clientUpdateStatus = updateGameStatus();
-    res.json({data: clientUpdateStatus})
+    res.send({data: clientUpdateStatus})
   }
 });
 
@@ -82,7 +82,7 @@ app.post('/StartGame', (req, res) => {
   if (gameStatus.readyPlayers === players.data.length) {
     startGame();
     const clientUpdateStatus = updateGameStatus();
-    res.json({success: true, data: clientUpdateStatus})
+    res.send({success: true, data: clientUpdateStatus})
   } else {
     gameStatus.gamePhase = "waiting-for-players"
     const clientUpdateStatus = updateGameStatus();
