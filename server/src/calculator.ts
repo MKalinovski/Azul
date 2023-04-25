@@ -212,7 +212,7 @@ export function calculatePoints(player: number) {
           checker -= 1;
         }
       }
-      tilesPool[players.data[player].board.stacker[i].color] += players.data[player].board.stacker[i].quantity; 
+      tilesPool[players.data[player].board.stacker[i].color] += players.data[player].board.stacker[i].quantity - 1; 
       players.data[player].board.stacker[i].quantity = 0;
       players.data[player].board.stacker[i].color = "";
       for (let i = 0; i < players.data[player].board.penalty.data.length; i++) {
@@ -637,8 +637,12 @@ export function takeTiles(
 }
 
 export function IsMoveLegal(what: string, who: number, where: number) {
-  const colorTile = players.data[who].board.main[where].colors.find((color) => color.color === what)
-  const ID = Number(colorTile?.id)
+  if (what !== "" && who === gameStatus.playerTurn)
+  if (where === 5) {
+    return true
+  } else {
+    const colorTile = players.data[who].board.main[where].colors.find((color) => color.color === what)
+    const ID = Number(colorTile?.id)
   if (
     (players.data[who].board.stacker[where].color === what || players.data[who].board.stacker[where].color === "")
   ) {
@@ -650,7 +654,7 @@ export function IsMoveLegal(what: string, who: number, where: number) {
   } else {
     return false;
   }
-}
+}};
 
 function checkForWholeRow(player: number, k: number) {
   if (
@@ -838,10 +842,10 @@ export function determineWinner() {
   let highestScore = -Infinity;
   let highestScorePlayer = 0;
 
-  for (let i = 1; i < players.data.length; i++) {
-    if (players.data[i - 1].score > highestScore) {
-      highestScore = players.data[i - 1].score;
-      highestScorePlayer = i - 1;
+  for (let i = 0; i < players.data.length; i++) {
+    if (players.data[i].score > highestScore) {
+      highestScore = players.data[i].score;
+      highestScorePlayer = i;
     }
   }
 
@@ -849,9 +853,8 @@ export function determineWinner() {
 }
 
 export function finishGame() {
-  for (let i = 1; i < players.data.length; i++) {
-    let player = i - 1;
-    calculateBonusPoints(player);
+  for (let i = 0; i < players.data.length; i++) {
+    calculateBonusPoints(i);
   }
   gameStatus.winner = determineWinner();
   gameStatus.gamePhase = "game-finished"

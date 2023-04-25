@@ -23,12 +23,14 @@ interface IReqNewPlayer {
 }
 
 app.post('/NewPlayer', (req, res) => {
-  const request = req.body as IReqNewPlayer
-  const playerName = request.name;
-  createPlayer(playerName);
-  const clientUpdateStatus = updateGameStatus();
-  const data = clientUpdateStatus
-  res.json({success: true, data: data});
+    if (gameStatus.gamePhase !== "game-started") {
+      const request = req.body as IReqNewPlayer
+      const playerName = request.name;
+      createPlayer(playerName);
+      const clientUpdateStatus = updateGameStatus();
+      const data = clientUpdateStatus
+      res.send({success: true, data: data});
+    }
   }
 );
 
@@ -59,7 +61,6 @@ app.post('/PlayersTurn', (req, res) => {
         const clientUpdateStatus = updateGameStatus();
         res.send({data: clientUpdateStatus})
       } else {
-        console.log("got to nextRound");
         nextRound();
         const clientUpdateStatus = updateGameStatus();
         res.send({data: clientUpdateStatus})
@@ -68,7 +69,6 @@ app.post('/PlayersTurn', (req, res) => {
       // Start next turn
       nextTurn();
       const clientUpdateStatus = updateGameStatus();
-      console.log("UPDATED GAME STATUS:" + clientUpdateStatus)
       res.send({data: clientUpdateStatus})
     }
   } else {

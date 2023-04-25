@@ -1,9 +1,10 @@
 import React, { PropsWithChildren } from "react";
 import TextField from "@mui/material/TextField";
 import Button from "@mui/material/Button";
-import { TileProperties, findColor } from "../styles/TileStyle";
+import { TileProperties, findColor, findImage } from "../styles/TileStyle";
 import axios from "axios";
 import "../styles/GameStyle.css";
+import { transcode } from "buffer";
 
 function useInterval(callback: () => void, delay: number) {
   React.useEffect(() => {
@@ -357,6 +358,7 @@ function Tile({ color, unavailable, small, position }: TileProps) {
       position !== "opponent" &&
       position !== "currentPlayerStacker" &&
       position !== "currentPlayerPenalty" &&
+      position !== "currentPlayerMain" &&
       !unavailable
     ) {
       setChosenTileColor(color);
@@ -369,18 +371,30 @@ function Tile({ color, unavailable, small, position }: TileProps) {
     width: TileProperties.size.standard,
     border: TileProperties.borderRadius.standard,
   };
-  let TileColor = findColor(color, true);
+  let tileColor = findColor(color, true);
+  let tileImage = findImage(color, true);
+  let transform;
+
   if (small) {
     tileSize.width = TileProperties.size.small;
     tileSize.border = TileProperties.borderRadius.small;
     shadow = TileProperties.shadow.smallTile;
   }
   if (unavailable) {
-    TileColor = findColor(color, false);
+    tileColor = findColor(color, false);
+    tileImage = findImage(color, false);
     shadow = TileProperties.shadow.greyedOut;
   }
-  if (color === "FPT") {
-    FPT = "1";
+  if (
+    hoveredTileColor === color &&
+    hoveredTilePosition === position &&
+    position !== "opponent" &&
+    position !== "currentPlayerStacker" &&
+    position !== "currentPlayerPenalty" &&
+    position !== "currentPlayerMain" &&
+    PlayerTurn === CurrentPlayerID
+  ) {
+    shadow = TileProperties.shadow.hovered;
   }
   if (
     chosenTilePosition === position &&
@@ -389,33 +403,41 @@ function Tile({ color, unavailable, small, position }: TileProps) {
     position !== "opponent" &&
     position !== "currentPlayerStacker" &&
     position !== "currentPlayerPenalty" &&
+    position !== "currentPlayerMain" &&
     !unavailable
   ) {
     shadow = TileProperties.shadow.highlighted;
   }
+
   function handleTileHover() {
-    setHoveredTileColor(color);
-    setHoveredTilePosition(position);
     if (
-      chosenTileColor !== color &&
-      chosenTilePosition !== position &&
-      hoveredTileColor === color &&
-      hoveredTilePosition === position &&
+      PlayerTurn === CurrentPlayerID &&
       position !== "opponent" &&
       position !== "currentPlayerStacker" &&
       position !== "currentPlayerPenalty" &&
-      PlayerTurn === CurrentPlayerID
+      position !== "currentPlayerMain" &&
+      !unavailable
     ) {
-      shadow = TileProperties.shadow.hovered;
+      setHoveredTileColor(color);
+      setHoveredTilePosition(position);
     }
   }
   function handleTileLeave() {
-    setHoveredTileColor("");
-    setHoveredTilePosition("");
-    if (chosenTileColor === color && chosenTilePosition === position) {
-      shadow = TileProperties.shadow.highlighted;
-    } else {
-      shadow = TileProperties.shadow.standard;
+    if (
+      PlayerTurn === CurrentPlayerID &&
+      position !== "opponent" &&
+      position !== "currentPlayerStacker" &&
+      position !== "currentPlayerPenalty" &&
+      position !== "currentPlayerMain" &&
+      !unavailable
+    ) {
+      setHoveredTileColor("");
+      setHoveredTilePosition("");
+      if (chosenTileColor === color && chosenTilePosition === position) {
+        shadow = TileProperties.shadow.highlighted;
+      } else {
+        shadow = TileProperties.shadow.standard;
+      }
     }
   }
 
@@ -423,18 +445,18 @@ function Tile({ color, unavailable, small, position }: TileProps) {
     <div
       className="tile"
       style={{
-        backgroundColor: TileColor,
+        backgroundImage: tileImage,
+        backgroundColor: tileColor,
         width: tileSize.width,
         height: tileSize.width,
         borderRadius: tileSize.border,
         boxShadow: shadow,
+        transform: transform,
       }}
       onClick={handleTileClick}
       onMouseEnter={handleTileHover}
       onMouseLeave={handleTileLeave}
-    >
-      <p>{FPT}</p>
-    </div>
+    ></div>
   );
 }
 
@@ -443,7 +465,7 @@ function RemainingBoard() {
   return (
     <div className="remaining-board">
       {Object.entries(remaining).map(([color, count], remindex) => (
-        <div key={"remaining-board" + remindex}>
+        <div className="remaining-column" key={"remaining-board" + remindex}>
           <>
             {Array.from({ length: count }).map((x, index) => (
               <Tile
@@ -473,6 +495,8 @@ interface IPlayersTurnResponse {
 function PlayerStackerRow({ row, stackerIndex }: IPlayerStackerRow) {
   const chosenTileColor = useChosenTileColor();
   const chosenTilePosition = useChosenTilePosition();
+  const setChosenTileColor = useSetChosenTileColor();
+  const setChosenTilePosition = useSetChosenTilePosition();
   const from = chosenTilePosition.replace(/[0-9]/g, "");
   const which = Number(chosenTilePosition.replace(/^\D+/g, ""));
   const currentPlayerID = useCurrentPlayerID();
@@ -506,6 +530,8 @@ function PlayerStackerRow({ row, stackerIndex }: IPlayerStackerRow) {
         const response = res.data as IPlayersTurnResponse;
         const updatedGameState = response.data;
         setGameState(updatedGameState);
+        setChosenTileColor("");
+        setChosenTilePosition("");
       });
     }
   }
@@ -559,6 +585,8 @@ function CurrentPlayerBoard() {
   const host = useHost();
   const setGameState = useSetGameState();
   const playerTurnAddress = host + "/PlayersTurn";
+  const setChosenTileColor = useSetChosenTileColor();
+  const setChosenTilePosition = useSetChosenTilePosition();
   function handleClick() {
     let data;
     if (from === "trader") {
@@ -586,6 +614,8 @@ function CurrentPlayerBoard() {
         const response = res.data as IPlayersTurnResponse;
         const updatedGameState = response.data;
         setGameState(updatedGameState);
+        setChosenTileColor("");
+        setChosenTilePosition("");
       });
     }
   }
@@ -620,7 +650,7 @@ function CurrentPlayerBoard() {
                 <Tile
                   color={properties[0]}
                   unavailable={!properties[1]}
-                  position={"currentPlayerMain" + mainrowID}
+                  position={"currentPlayerMain"}
                   key={"currentplayer-mainrow" + mainrowID + "tile" + index}
                 />
               ))}

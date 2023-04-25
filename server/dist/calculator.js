@@ -189,7 +189,7 @@ function calculatePoints(player) {
                     checker -= 1;
                 }
             }
-            exports.tilesPool[exports.players.data[player].board.stacker[i].color] += exports.players.data[player].board.stacker[i].quantity;
+            exports.tilesPool[exports.players.data[player].board.stacker[i].color] += exports.players.data[player].board.stacker[i].quantity - 1;
             exports.players.data[player].board.stacker[i].quantity = 0;
             exports.players.data[player].board.stacker[i].color = "";
             for (let i = 0; i < exports.players.data[player].board.penalty.data.length; i++) {
@@ -280,8 +280,15 @@ function takeTiles(from, what, who, where, which) {
                     case "black":
                         tilesTaken = exports.board.traders[which].black;
                         exports.board.traders[which].black = 0;
-                        exports.players.data[who].board.stacker[where].color = "black";
-                        exports.players.data[who].board.stacker[where].quantity += tilesTaken;
+                        if (where === 5) {
+                            for (let i = 0; i < tilesTaken; i++) {
+                                exports.players.data[who].board.penalty.data.push("black");
+                            }
+                        }
+                        else {
+                            exports.players.data[who].board.stacker[where].color = "black";
+                            exports.players.data[who].board.stacker[where].quantity += tilesTaken;
+                        }
                         redTilesLeft = exports.board.traders[which].red;
                         blueTilesLeft = exports.board.traders[which].blue;
                         whiteTilesLeft = exports.board.traders[which].white;
@@ -294,20 +301,33 @@ function takeTiles(from, what, who, where, which) {
                         exports.board.traders[which].blue = 0;
                         exports.board.traders[which].white = 0;
                         exports.board.traders[which].yellow = 0;
-                        if (exports.players.data[who].board.stacker[where].quantity > where + 1) {
-                            penaltyTiles =
-                                exports.players.data[who].board.stacker[where].quantity - (where + 1);
-                            exports.players.data[who].board.stacker[where].quantity = where + 1;
-                            for (let i = 0; i < penaltyTiles; i++) {
-                                exports.players.data[who].board.penalty.data.push("black");
+                        if (where === 5) {
+                            return;
+                        }
+                        else {
+                            if (exports.players.data[who].board.stacker[where].quantity > where + 1) {
+                                penaltyTiles =
+                                    exports.players.data[who].board.stacker[where].quantity - (where + 1);
+                                exports.players.data[who].board.stacker[where].quantity = where + 1;
+                                for (let i = 0; i < penaltyTiles; i++) {
+                                    exports.players.data[who].board.penalty.data.push("black");
+                                }
                             }
                         }
                         break;
                     case "blue":
                         tilesTaken = exports.board.traders[which].blue;
                         exports.board.traders[which].blue -= exports.board.traders[which].blue;
-                        exports.players.data[who].board.stacker[where].color = "blue";
-                        exports.players.data[who].board.stacker[where].quantity += tilesTaken;
+                        if (where === 5) {
+                            for (let i = 0; i < tilesTaken; i++) {
+                                exports.players.data[who].board.penalty.data.push("blue");
+                            }
+                        }
+                        else {
+                            exports.players.data[who].board.stacker[where].color = "blue";
+                            exports.players.data[who].board.stacker[where].quantity += tilesTaken;
+                        }
+                        ;
                         redTilesLeft = exports.board.traders[which].red;
                         blackTilesLeft = exports.board.traders[which].black;
                         whiteTilesLeft = exports.board.traders[which].white;
@@ -320,20 +340,33 @@ function takeTiles(from, what, who, where, which) {
                         exports.board.traders[which].black = 0;
                         exports.board.traders[which].white = 0;
                         exports.board.traders[which].yellow = 0;
-                        if (exports.players.data[who].board.stacker[where].quantity > where + 1) {
-                            penaltyTiles =
-                                exports.players.data[who].board.stacker[where].quantity - (where + 1);
-                            exports.players.data[who].board.stacker[where].quantity = where + 1;
-                            for (let i = 0; i < penaltyTiles; i++) {
-                                exports.players.data[who].board.penalty.data.push("blue");
+                        if (where === 5) {
+                            return;
+                        }
+                        else {
+                            if (exports.players.data[who].board.stacker[where].quantity > where + 1) {
+                                penaltyTiles =
+                                    exports.players.data[who].board.stacker[where].quantity - (where + 1);
+                                exports.players.data[who].board.stacker[where].quantity = where + 1;
+                                for (let i = 0; i < penaltyTiles; i++) {
+                                    exports.players.data[who].board.penalty.data.push("blue");
+                                }
                             }
                         }
+                        ;
                         break;
                     case "red":
                         tilesTaken = exports.board.traders[which].red;
                         exports.board.traders[which].red -= exports.board.traders[which].red;
-                        exports.players.data[who].board.stacker[where].color = "red";
-                        exports.players.data[who].board.stacker[where].quantity += tilesTaken;
+                        if (where === 5) {
+                            for (let i = 0; i < tilesTaken; i++) {
+                                exports.players.data[who].board.penalty.data.push("red");
+                            }
+                        }
+                        else {
+                            exports.players.data[who].board.stacker[where].color = "red";
+                            exports.players.data[who].board.stacker[where].quantity += tilesTaken;
+                        }
                         blueTilesLeft = exports.board.traders[which].blue;
                         blackTilesLeft = exports.board.traders[which].black;
                         whiteTilesLeft = exports.board.traders[which].white;
@@ -346,20 +379,33 @@ function takeTiles(from, what, who, where, which) {
                         exports.board.traders[which].blue = 0;
                         exports.board.traders[which].white = 0;
                         exports.board.traders[which].yellow = 0;
-                        if (exports.players.data[who].board.stacker[where].quantity > where + 1) {
-                            penaltyTiles =
-                                exports.players.data[who].board.stacker[where].quantity - (where + 1);
-                            exports.players.data[who].board.stacker[where].quantity = where + 1;
-                            for (let i = 0; i < penaltyTiles; i++) {
-                                exports.players.data[who].board.penalty.data.push("red");
+                        if (where === 5) {
+                            return;
+                        }
+                        else {
+                            if (exports.players.data[who].board.stacker[where].quantity > where + 1) {
+                                penaltyTiles =
+                                    exports.players.data[who].board.stacker[where].quantity - (where + 1);
+                                exports.players.data[who].board.stacker[where].quantity = where + 1;
+                                for (let i = 0; i < penaltyTiles; i++) {
+                                    exports.players.data[who].board.penalty.data.push("red");
+                                }
                             }
                         }
+                        ;
                         break;
                     case "white":
                         tilesTaken = exports.board.traders[which].white;
                         exports.board.traders[which].white -= exports.board.traders[which].white;
-                        exports.players.data[who].board.stacker[where].color = "white";
-                        exports.players.data[who].board.stacker[where].quantity += tilesTaken;
+                        if (where === 5) {
+                            for (let i = 0; i < tilesTaken; i++) {
+                                exports.players.data[who].board.penalty.data.push("white");
+                            }
+                        }
+                        else {
+                            exports.players.data[who].board.stacker[where].color = "white";
+                            exports.players.data[who].board.stacker[where].quantity += tilesTaken;
+                        }
                         redTilesLeft = exports.board.traders[which].red;
                         blackTilesLeft = exports.board.traders[which].black;
                         blueTilesLeft = exports.board.traders[which].blue;
@@ -372,20 +418,34 @@ function takeTiles(from, what, who, where, which) {
                         exports.board.traders[which].blue = 0;
                         exports.board.traders[which].black = 0;
                         exports.board.traders[which].yellow = 0;
-                        if (exports.players.data[who].board.stacker[where].quantity > where + 1) {
-                            penaltyTiles =
-                                exports.players.data[who].board.stacker[where].quantity - (where + 1);
-                            exports.players.data[who].board.stacker[where].quantity = where + 1;
-                            for (let i = 0; i < penaltyTiles; i++) {
-                                exports.players.data[who].board.penalty.data.push("white");
+                        if (where === 5) {
+                            return;
+                        }
+                        else {
+                            if (exports.players.data[who].board.stacker[where].quantity > where + 1) {
+                                penaltyTiles =
+                                    exports.players.data[who].board.stacker[where].quantity - (where + 1);
+                                exports.players.data[who].board.stacker[where].quantity = where + 1;
+                                for (let i = 0; i < penaltyTiles; i++) {
+                                    exports.players.data[who].board.penalty.data.push("white");
+                                }
                             }
                         }
+                        ;
                         break;
                     case "yellow":
                         tilesTaken = exports.board.traders[which].yellow;
                         exports.board.traders[which].yellow -= exports.board.traders[which].yellow;
-                        exports.players.data[who].board.stacker[where].color = "yellow";
-                        exports.players.data[who].board.stacker[where].quantity += tilesTaken;
+                        if (where === 5) {
+                            for (let i = 0; i < tilesTaken; i++) {
+                                exports.players.data[who].board.penalty.data.push("yellow");
+                            }
+                        }
+                        else {
+                            exports.players.data[who].board.stacker[where].color = "yellow";
+                            exports.players.data[who].board.stacker[where].quantity += tilesTaken;
+                        }
+                        ;
                         redTilesLeft = exports.board.traders[which].red;
                         blackTilesLeft = exports.board.traders[which].black;
                         blueTilesLeft = exports.board.traders[which].blue;
@@ -398,14 +458,20 @@ function takeTiles(from, what, who, where, which) {
                         exports.board.traders[which].blue = 0;
                         exports.board.traders[which].white = 0;
                         exports.board.traders[which].black = 0;
-                        if (exports.players.data[who].board.stacker[where].quantity > where + 1) {
-                            penaltyTiles =
-                                exports.players.data[who].board.stacker[where].quantity - (where + 1);
-                            exports.players.data[who].board.stacker[where].quantity = where + 1;
-                            for (let i = 0; i < penaltyTiles; i++) {
-                                exports.players.data[who].board.penalty.data.push("yellow");
+                        if (where === 5) {
+                            return;
+                        }
+                        else {
+                            if (exports.players.data[who].board.stacker[where].quantity > where + 1) {
+                                penaltyTiles =
+                                    exports.players.data[who].board.stacker[where].quantity - (where + 1);
+                                exports.players.data[who].board.stacker[where].quantity = where + 1;
+                                for (let i = 0; i < penaltyTiles; i++) {
+                                    exports.players.data[who].board.penalty.data.push("yellow");
+                                }
                             }
                         }
+                        ;
                         break;
                 }
             }
@@ -416,97 +482,163 @@ function takeTiles(from, what, who, where, which) {
                 case "black":
                     tilesTaken = exports.board.middle.black;
                     exports.board.middle.black = 0;
-                    exports.players.data[who].board.stacker[where].color = "black";
-                    exports.players.data[who].board.stacker[where].quantity += tilesTaken;
+                    if (where === 5) {
+                        for (let i = 0; i < tilesTaken; i++) {
+                            exports.players.data[who].board.penalty.data.push("black");
+                        }
+                    }
+                    else {
+                        exports.players.data[who].board.stacker[where].color = "black";
+                        exports.players.data[who].board.stacker[where].quantity += tilesTaken;
+                    }
+                    ;
                     if (exports.board.middle.FPToken === true) {
                         exports.board.middle.FPToken = false;
                         exports.players.data[who].board.penalty.FPToken = true;
                         exports.players.data[who].board.penalty.data.push("FPT");
                     }
-                    if (exports.players.data[who].board.stacker[where].quantity > where + 1) {
-                        penaltyTiles =
-                            exports.players.data[who].board.stacker[where].quantity - (where + 1);
-                        exports.players.data[who].board.stacker[where].quantity = where + 1;
-                        for (let i = 0; i < penaltyTiles; i++) {
-                            exports.players.data[who].board.penalty.data.push("black");
+                    if (where === 5) {
+                        return;
+                    }
+                    else {
+                        if (exports.players.data[who].board.stacker[where].quantity > where + 1) {
+                            penaltyTiles =
+                                exports.players.data[who].board.stacker[where].quantity - (where + 1);
+                            exports.players.data[who].board.stacker[where].quantity = where + 1;
+                            for (let i = 0; i < penaltyTiles; i++) {
+                                exports.players.data[who].board.penalty.data.push("black");
+                            }
                         }
                     }
+                    ;
                     break;
                 case "blue":
                     tilesTaken = exports.board.middle.blue;
                     exports.board.middle.blue = 0;
-                    exports.players.data[who].board.stacker[where].color = "blue";
-                    exports.players.data[who].board.stacker[where].quantity += tilesTaken;
+                    if (where === 5) {
+                        for (let i = 0; i < tilesTaken; i++) {
+                            exports.players.data[who].board.penalty.data.push("blue");
+                        }
+                    }
+                    else {
+                        exports.players.data[who].board.stacker[where].color = "blue";
+                        exports.players.data[who].board.stacker[where].quantity += tilesTaken;
+                    }
                     if (exports.board.middle.FPToken === true) {
                         exports.board.middle.FPToken = false;
                         exports.players.data[who].board.penalty.FPToken = true;
                         exports.players.data[who].board.penalty.data.push("FPT");
                     }
-                    if (exports.players.data[who].board.stacker[where].quantity > where + 1) {
-                        penaltyTiles =
-                            exports.players.data[who].board.stacker[where].quantity - (where + 1);
-                        exports.players.data[who].board.stacker[where].quantity = where + 1;
-                        for (let i = 0; i < penaltyTiles; i++) {
-                            exports.players.data[who].board.penalty.data.push("blue");
+                    if (where === 5) {
+                        return;
+                    }
+                    else {
+                        if (exports.players.data[who].board.stacker[where].quantity > where + 1) {
+                            penaltyTiles =
+                                exports.players.data[who].board.stacker[where].quantity - (where + 1);
+                            exports.players.data[who].board.stacker[where].quantity = where + 1;
+                            for (let i = 0; i < penaltyTiles; i++) {
+                                exports.players.data[who].board.penalty.data.push("blue");
+                            }
                         }
                     }
+                    ;
                     break;
                 case "red":
                     tilesTaken = exports.board.middle.red;
                     exports.board.middle.red = 0;
-                    exports.players.data[who].board.stacker[where].color = "red";
-                    exports.players.data[who].board.stacker[where].quantity += tilesTaken;
+                    if (where === 5) {
+                        for (let i = 0; i < tilesTaken; i++) {
+                            exports.players.data[who].board.penalty.data.push("red");
+                        }
+                    }
+                    else {
+                        exports.players.data[who].board.stacker[where].color = "red";
+                        exports.players.data[who].board.stacker[where].quantity += tilesTaken;
+                    }
                     if (exports.board.middle.FPToken === true) {
                         exports.board.middle.FPToken = false;
                         exports.players.data[who].board.penalty.FPToken = true;
                         exports.players.data[who].board.penalty.data.push("FPT");
                     }
-                    if (exports.players.data[who].board.stacker[where].quantity > where + 1) {
-                        penaltyTiles =
-                            exports.players.data[who].board.stacker[where].quantity - (where + 1);
-                        exports.players.data[who].board.stacker[where].quantity = where + 1;
-                        for (let i = 0; i < penaltyTiles; i++) {
-                            exports.players.data[who].board.penalty.data.push("red");
+                    if (where === 5) {
+                        return;
+                    }
+                    else {
+                        if (exports.players.data[who].board.stacker[where].quantity > where + 1) {
+                            penaltyTiles =
+                                exports.players.data[who].board.stacker[where].quantity - (where + 1);
+                            exports.players.data[who].board.stacker[where].quantity = where + 1;
+                            for (let i = 0; i < penaltyTiles; i++) {
+                                exports.players.data[who].board.penalty.data.push("red");
+                            }
                         }
                     }
+                    ;
                     break;
                 case "white":
                     tilesTaken = exports.board.middle.white;
                     exports.board.middle.white = 0;
-                    exports.players.data[who].board.stacker[where].color = "white";
-                    exports.players.data[who].board.stacker[where].quantity += tilesTaken;
+                    if (where === 5) {
+                        for (let i = 0; i < tilesTaken; i++) {
+                            exports.players.data[who].board.penalty.data.push("white");
+                        }
+                    }
+                    else {
+                        exports.players.data[who].board.stacker[where].color = "white";
+                        exports.players.data[who].board.stacker[where].quantity += tilesTaken;
+                    }
                     if (exports.board.middle.FPToken === true) {
                         exports.board.middle.FPToken = false;
                         exports.players.data[who].board.penalty.FPToken = true;
                         exports.players.data[who].board.penalty.data.push("FPT");
                     }
-                    if (exports.players.data[who].board.stacker[where].quantity > where + 1) {
-                        penaltyTiles =
-                            exports.players.data[who].board.stacker[where].quantity - (where + 1);
-                        exports.players.data[who].board.stacker[where].quantity = where + 1;
-                        for (let i = 0; i < penaltyTiles; i++) {
-                            exports.players.data[who].board.penalty.data.push("white");
+                    if (where === 5) {
+                        return;
+                    }
+                    else {
+                        if (exports.players.data[who].board.stacker[where].quantity > where + 1) {
+                            penaltyTiles =
+                                exports.players.data[who].board.stacker[where].quantity - (where + 1);
+                            exports.players.data[who].board.stacker[where].quantity = where + 1;
+                            for (let i = 0; i < penaltyTiles; i++) {
+                                exports.players.data[who].board.penalty.data.push("white");
+                            }
                         }
                     }
+                    ;
                     break;
                 case "yellow":
                     tilesTaken = exports.board.middle.yellow;
                     exports.board.middle.yellow = 0;
-                    exports.players.data[who].board.stacker[where].color = "yellow";
-                    exports.players.data[who].board.stacker[where].quantity += tilesTaken;
+                    if (where === 5) {
+                        for (let i = 0; i < tilesTaken; i++) {
+                            exports.players.data[who].board.penalty.data.push("yellow");
+                        }
+                    }
+                    else {
+                        exports.players.data[who].board.stacker[where].color = "yellow";
+                        exports.players.data[who].board.stacker[where].quantity += tilesTaken;
+                    }
                     if (exports.board.middle.FPToken === true) {
                         exports.board.middle.FPToken = false;
                         exports.players.data[who].board.penalty.FPToken = true;
                         exports.players.data[who].board.penalty.data.push("FPT");
                     }
-                    if (exports.players.data[who].board.stacker[where].quantity > where + 1) {
-                        penaltyTiles =
-                            exports.players.data[who].board.stacker[where].quantity - (where + 1);
-                        exports.players.data[who].board.stacker[where].quantity = where + 1;
-                        for (let i = 0; i < penaltyTiles; i++) {
-                            exports.players.data[who].board.penalty.data.push("yellow");
+                    if (where === 5) {
+                        return;
+                    }
+                    else {
+                        if (exports.players.data[who].board.stacker[where].quantity > where + 1) {
+                            penaltyTiles =
+                                exports.players.data[who].board.stacker[where].quantity - (where + 1);
+                            exports.players.data[who].board.stacker[where].quantity = where + 1;
+                            for (let i = 0; i < penaltyTiles; i++) {
+                                exports.players.data[who].board.penalty.data.push("yellow");
+                            }
                         }
                     }
+                    ;
                     break;
             }
         }
@@ -514,21 +646,28 @@ function takeTiles(from, what, who, where, which) {
 }
 exports.takeTiles = takeTiles;
 function IsMoveLegal(what, who, where) {
-    const colorTile = exports.players.data[who].board.main[where].colors.find((color) => color.color === what);
-    const ID = Number(colorTile === null || colorTile === void 0 ? void 0 : colorTile.id);
-    if ((exports.players.data[who].board.stacker[where].color === what || exports.players.data[who].board.stacker[where].color === "")) {
-        if (!exports.players.data[who].board.main[where].colors[ID].isTrue) {
+    if (what !== "" && who === exports.gameStatus.playerTurn)
+        if (where === 5) {
             return true;
         }
         else {
-            return false;
+            const colorTile = exports.players.data[who].board.main[where].colors.find((color) => color.color === what);
+            const ID = Number(colorTile === null || colorTile === void 0 ? void 0 : colorTile.id);
+            if ((exports.players.data[who].board.stacker[where].color === what || exports.players.data[who].board.stacker[where].color === "")) {
+                if (!exports.players.data[who].board.main[where].colors[ID].isTrue) {
+                    return true;
+                }
+                else {
+                    return false;
+                }
+            }
+            else {
+                return false;
+            }
         }
-    }
-    else {
-        return false;
-    }
 }
 exports.IsMoveLegal = IsMoveLegal;
+;
 function checkForWholeRow(player, k) {
     if (exports.players.data[player].board.main[k].colors[0].isTrue &&
         exports.players.data[player].board.main[k].colors[1].isTrue &&
@@ -680,19 +819,18 @@ exports.calculateBonusPoints = calculateBonusPoints;
 function determineWinner() {
     let highestScore = -Infinity;
     let highestScorePlayer = 0;
-    for (let i = 1; i < exports.players.data.length; i++) {
-        if (exports.players.data[i - 1].score > highestScore) {
-            highestScore = exports.players.data[i - 1].score;
-            highestScorePlayer = i - 1;
+    for (let i = 0; i < exports.players.data.length; i++) {
+        if (exports.players.data[i].score > highestScore) {
+            highestScore = exports.players.data[i].score;
+            highestScorePlayer = i;
         }
     }
     return highestScorePlayer;
 }
 exports.determineWinner = determineWinner;
 function finishGame() {
-    for (let i = 1; i < exports.players.data.length; i++) {
-        let player = i - 1;
-        calculateBonusPoints(player);
+    for (let i = 0; i < exports.players.data.length; i++) {
+        calculateBonusPoints(i);
     }
     exports.gameStatus.winner = determineWinner();
     exports.gameStatus.gamePhase = "game-finished";

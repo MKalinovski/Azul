@@ -15,17 +15,32 @@ export const TileProperties = {
       white: "rgb(241, 244, 244)",
       black: "rgb(191, 191, 191)",
     },
+    image: {
+      red: 'url("/media/red.png")',
+      yellow: "url('/media/yellow.png')",
+      blue: "url('media/blue.png')",
+      white: "url('media/white.png')",
+      black: "url('media/black.png')",
+      FPT: "url('media/FPT.png')",
+    },
+    imageGrey: {
+      red: 'url("/media/greyred.png")',
+      yellow: 'url("/media/greyyellow.png")',
+      blue: 'url("media/greyblue.png")',
+      white: 'url("media/greywhite.png")',
+      black: 'url("media/greyblack.png")',
+    },
   },
   shadow: {
     smallTile:
-      "inset 1px 1px 0px 2px rgba(255, 255, 255, 0.50), inset -1px -1px 0px 2px rgba(0, 0, 0, 0.50)",
+      //"inset 1px 1px 0px 2px rgba(255, 255, 255, 0.50), inset -1px -1px 0px 2px rgba(0, 0, 0, 0.50)",
+      "1px 1px 3px 0px #000000",
     standard:
-      "inset 2px 2px 0px 3px rgba(255, 255, 255, 0.50), inset -2px -2px 0px 3px rgba(0, 0, 0, 0.50)",
-    highlighted:
-      "0px 0px 3px 3px rgba(0, 181, 18, 0.70), inset 2px 2px 0px 3px rgba(255, 255, 255, 0.57), inset -2px -2px 0px 3px rgba(0, 0, 0, 0.50)",
+      //"inset 2px 2px 0px 3px rgba(255, 255, 255, 0.50), inset -2px -2px 0px 3px rgba(0, 0, 0, 0.50)",
+      "2px 2px 3px 0px #000000",
+    highlighted: "0px 0px 3px 3px rgba(0, 181, 18, 0.70)",
     greyedOut: "",
-    hovered:
-      "0px 0px 3px 3px rgba(0, 18, 181, 0.70), inset 2px 2px 0px 3px rgba(255, 255, 255, 0.57), inset -2px -2px 0px 3px rgba(0, 0, 0, 0.50)",
+    hovered: "0px 0px 3px 3px rgba(0, 18, 181, 0.70)",
   },
   size: {
     standard: "50px",
@@ -65,6 +80,38 @@ export function findColor(color: string, live: boolean) {
         return TileProperties.color.greyedOut.white;
       case "black":
         return TileProperties.color.greyedOut.black;
+    }
+  }
+}
+
+export function findImage(color: string, live: boolean) {
+  if (live) {
+    switch (color) {
+      case "red":
+        return TileProperties.color.image.red;
+      case "yellow":
+        return TileProperties.color.image.yellow;
+      case "blue":
+        return TileProperties.color.image.blue;
+      case "white":
+        return TileProperties.color.image.white;
+      case "black":
+        return TileProperties.color.image.black;
+      case "FPT":
+        return TileProperties.color.image.FPT;
+    }
+  } else {
+    switch (color) {
+      case "red":
+        return TileProperties.color.imageGrey.red;
+      case "yellow":
+        return TileProperties.color.imageGrey.yellow;
+      case "blue":
+        return TileProperties.color.imageGrey.blue;
+      case "white":
+        return TileProperties.color.imageGrey.white;
+      case "black":
+        return TileProperties.color.imageGrey.black;
     }
   }
 }

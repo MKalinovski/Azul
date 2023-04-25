@@ -1,6 +1,6 @@
 @font-face {
   font-family: "Eastwood";
-  src: url("../media/Eastwood.otf");
+  src: url("../../public/media/Eastwood.otf");
 }
 
 .game-page {
@@ -37,11 +37,11 @@
 
 .turn-indicator {
   height: 50px;
-  width: 240px;
+  width: 300px;
   border-bottom-left-radius: 8px;
   border-bottom-right-radius: 8px;
-  background-color: rgb(200, 225, 237);
-  box-shadow: 0px 5px 10px 3px rgba(0,0,0, 0.25);
+  background-color: #044a6e;
+  box-shadow: 2px 2px 6px 0px #000000;
   display: flex;
   justify-content: center;
   align-items: center;
@@ -49,8 +49,8 @@
 
 .turn-indicator p {
   font-family: 'Eastwood';
-  font-size: large;
-  color:rgb(24, 92, 123);
+  font-size: x-large;
+  color:rgb(255, 255, 255);
 }
 
 .opponents {
@@ -66,10 +66,10 @@
   height: 265.5px;
   background-color:rgb(200, 225, 237);
   border-radius: 8px;
-  box-shadow:0px 5px 10px 3px rgba(0,0,0, 0.25);
-  background-image: url("../media/AzulBoard.png");
+  box-shadow: inset 2px 2px 15px 1px #FFFFFF, 2px 2px 6px 0px #000000;
+  background-image: url("../../public/media/AzulBoard.png");
   background-size: 100%;
-  border: 5px solid #277BA4;
+  border: 5px solid #044a6e;
 }
 
 .opponent-info {
@@ -128,10 +128,10 @@
   width: 584px;
   height: 354px;
   border-radius: 12px;
-  box-shadow:0px 5px 10px 3px rgba(0,0,0, 0.25);
-  background-image: url("../media/AzulBoard.png");
+  box-shadow: inset 2px 2px 15px 1px #FFFFFF, 2px 2px 6px 0px #000000;
+  background-image: url("../../public/media/AzulBoard.png");
   background-size: 100%;
-  border: 5px solid #277BA4;
+  border: 5px solid #044a6e;
 }
 
 .currentPlayer-info {
@@ -142,17 +142,21 @@
   height: 40px;
 }
 
+.currentPlayer-info p {
+  font-size: x-large;
+}
+
 .currentPlayer-boards {
   margin-top: 5px;
   display: flex;
-  padding-left: 10px;
+  padding-left: 5px;
   gap: 34px;
 }
 
 .currentPlayer-stackerBoard {
   display: flex;
   flex-direction: column;
-  gap: 6px;
+  gap: 5px;
   width: 270px;
 }
 
@@ -178,9 +182,10 @@
 
 .currentPlayer-penalty {
   display: flex;
-  margin-top: 23px;
+  margin-top: 20px;
   gap: 6px;
   padding-left: 6px;
+  height: 50px;
 }
 
 .main-game {
@@ -202,7 +207,9 @@
 .trader {
   display: flex;
   background-color: rgb(200, 225, 237);
-  box-shadow: 0px 5px 10px 3px rgba(0,0,0, 0.25);
+  box-shadow: inset 2px 2px 15px 1px #FFFFFF, 2px 2px 6px 0px #000000;
+  background-image: url("../../public/media/trader.png");
+  background-size: 100%;
   justify-content: center;
   align-items: center;
   width: 165px;
@@ -228,10 +235,15 @@
   gap: 5px;
 }
 
+.remaining-board * {
+  gap: 5px;
+}
+
 .tile {
   display: flex;
   justify-content: center;
   align-items: center;
+  background-size: 100%;
 }
 
 .tile p {
@@ -240,7 +252,7 @@
 }
 
 .logo {
-  background-image: url("../media/AzulLogo.png");
+  background-image: url("../../public/media/AzulLogo.png");
   background-size: 100%;
   background-repeat: no-repeat;
   width: 100%;

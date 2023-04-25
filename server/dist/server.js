@@ -18,12 +18,14 @@ app.use((0, cors_1.default)(corsOpts));
 app.use(body_parser_1.default.json());
 const port = 8000;
 app.post('/NewPlayer', (req, res) => {
-    const request = req.body;
-    const playerName = request.name;
-    (0, calculator_1.createPlayer)(playerName);
-    const clientUpdateStatus = (0, calculator_1.updateGameStatus)();
-    const data = clientUpdateStatus;
-    res.json({ success: true, data: data });
+    if (calculator_1.gameStatus.gamePhase !== "game-started") {
+        const request = req.body;
+        const playerName = request.name;
+        (0, calculator_1.createPlayer)(playerName);
+        const clientUpdateStatus = (0, calculator_1.updateGameStatus)();
+        const data = clientUpdateStatus;
+        res.send({ success: true, data: data });
+    }
 });
 app.post('/PlayersTurn', (req, res) => {
     const request = req.body;
@@ -45,7 +47,6 @@ app.post('/PlayersTurn', (req, res) => {
                 res.send({ data: clientUpdateStatus });
             }
             else {
-                console.log("got to nextRound");
                 (0, calculator_1.nextRound)();
                 const clientUpdateStatus = (0, calculator_1.updateGameStatus)();
                 res.send({ data: clientUpdateStatus });
@@ -55,7 +56,6 @@ app.post('/PlayersTurn', (req, res) => {
             // Start next turn
             (0, calculator_1.nextTurn)();
             const clientUpdateStatus = (0, calculator_1.updateGameStatus)();
-            console.log("UPDATED GAME STATUS:" + clientUpdateStatus);
             res.send({ data: clientUpdateStatus });
         }
     }
