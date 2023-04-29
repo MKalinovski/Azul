@@ -16,16 +16,16 @@ export const TileProperties = {
       black: "rgb(191, 191, 191)",
     },
     image: {
-      red: 'url("/media/red.png")',
-      yellow: "url('/media/yellow.png')",
+      red: 'url("media/red.png")',
+      yellow: "url('media/yellow.png')",
       blue: "url('media/blue.png')",
       white: "url('media/white.png')",
       black: "url('media/black.png')",
       FPT: "url('media/FPT.png')",
     },
     imageGrey: {
-      red: 'url("/media/greyred.png")',
-      yellow: 'url("/media/greyyellow.png")',
+      red: 'url("media/greyred.png")',
+      yellow: 'url("media/greyyellow.png")',
       blue: 'url("media/greyblue.png")',
       white: 'url("media/greywhite.png")',
       black: 'url("media/greyblack.png")',
@@ -37,8 +37,9 @@ export const TileProperties = {
       "1px 1px 3px 0px #000000",
     standard:
       //"inset 2px 2px 0px 3px rgba(255, 255, 255, 0.50), inset -2px -2px 0px 3px rgba(0, 0, 0, 0.50)",
-      "2px 2px 3px 0px #000000",
-    highlighted: "0px 0px 3px 3px rgba(0, 181, 18, 0.70)",
+      "1px 1px 3px 0px #000000",
+    highlighted:
+      "1px 1px 3px 0px #000000, 0px 0px 4px 4px rgba(50, 240, 30, 0.9)",
     greyedOut: "",
     hovered: "0px 0px 3px 3px rgba(0, 18, 181, 0.70)",
   },

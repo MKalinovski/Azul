@@ -4,7 +4,6 @@ import Button from "@mui/material/Button";
 import { TileProperties, findColor, findImage } from "../styles/TileStyle";
 import axios from "axios";
 import "../styles/GameStyle.css";
-import { transcode } from "buffer";
 
 function useInterval(callback: () => void, delay: number) {
   React.useEffect(() => {
@@ -320,11 +319,6 @@ function useSetGameState() {
   return gameState.setState;
 }
 
-function useGameState() {
-  const gameState = React.useContext(GameStateContext);
-  return gameState.state;
-}
-
 function useSetHoveredTileColor() {
   const hoveredTileColor = React.useContext(HoveredTileColorContext);
   return hoveredTileColor.setHoveredTileColor;
@@ -366,14 +360,12 @@ function Tile({ color, unavailable, small, position }: TileProps) {
     }
   }
   let shadow = TileProperties.shadow.standard;
-  let FPT;
   let tileSize = {
     width: TileProperties.size.standard,
     border: TileProperties.borderRadius.standard,
   };
   let tileColor = findColor(color, true);
   let tileImage = findImage(color, true);
-  let transform;
 
   if (small) {
     tileSize.width = TileProperties.size.small;
@@ -445,13 +437,12 @@ function Tile({ color, unavailable, small, position }: TileProps) {
     <div
       className="tile"
       style={{
-        backgroundImage: tileImage,
         backgroundColor: tileColor,
+        backgroundImage: tileImage,
         width: tileSize.width,
         height: tileSize.width,
         borderRadius: tileSize.border,
         boxShadow: shadow,
-        transform: transform,
       }}
       onClick={handleTileClick}
       onMouseEnter={handleTileHover}
